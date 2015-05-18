@@ -293,7 +293,7 @@ struct Ext2FSInode * Ext2FS::load_inode(unsigned int inode_number)
 	struct Ext2FSInode * res_inode = new struct Ext2FSInode;
 	*res_inode = inode_table_segment[blockgroup_inode_index(inode_number)];
 
-	delete buffer;
+	delete[] buffer;
 	return res_inode;
 }
 
@@ -334,7 +334,7 @@ unsigned int Ext2FS::get_block_address(struct Ext2FSInode * inode, unsigned int 
 		res = ((unsigned int *)buffer)[block_number%addresses_per_block - 1];
 	}
 
-	delete buffer;
+	delete[] buffer;
 	return res;
 }
 
@@ -375,6 +375,8 @@ struct Ext2FSInode * Ext2FS::get_file_inode_from_dir_inode(struct Ext2FSInode * 
 
 		dirEntry = (Ext2FSDirEntry*)(dirEntry + dirEntry->record_length);	//voy a la proxima dir entry
 	}
+
+	delete[] buffer;
 
 	return ret;
 }
