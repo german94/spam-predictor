@@ -285,13 +285,13 @@ struct Ext2FSInode * Ext2FS::load_inode(unsigned int inode_number)
 
 	struct Ext2FSBlockGroupDescriptor * block_descriptor = block_group(blockgroup_for_inode(inode_number));
 	unsigned int inodes_per_block = block_size/_superblock->inode_size;
-	unsigned int block_of_inode = (unsigned int)(inode_number/inodes_per_block);
+	unsigned int block_of_inode = (unsigned int)(blockgroup_inode_index(inode_number)/inodes_per_block);
 
 	read_block(block_descriptor->inode_table+block_of_inode, buffer);
 	struct Ext2FSInode * inode_table_segment = (struct Ext2FSInode *)buffer;
 
 	struct Ext2FSInode * res_inode = new struct Ext2FSInode;
-	*res_inode = inode_table_segment[blockgroup_inode_index(inode_number)];
+	*res_inode = inode_table_segment[blockgroup_inode_index(inode_number)%inodes_per_block];
 
 	delete[] buffer;
 	return res_inode;
@@ -356,23 +356,19 @@ struct Ext2FSInode * Ext2FS::get_file_inode_from_dir_inode(struct Ext2FSInode * 
 	unsigned int block_size = 1024 << _superblock->log_block_size;
 	unsigned char * buffer = new unsigned char[block_size * from->blocks];
 
-	for(int i = 0; i < from->blocks; i++)
-	{
-		read_block(get_block_address(from, from->blocks[i]), buffer + i * block_size);
+	for(int i = 0; i < (from->size)/block_size; i++)
+		read_block(get_block_address(from, i), buffer + i * block_size);
 
-		if((i + 1) * block_size >= from->size)    //se refiere a esto en el mail??
-			break;
-	}
-
-	Ext2FSDirEntry* dirEntry = (Ext2FSDirEntry*)buffer;    //me paro en la primer dir entry
+	unsigned char * dirEntry = buffer;    //me paro en la primer dir entry
 	Ext2FSInode* ret = NULL;	//inicializo lo que voy a devolver
 	while(ret == NULL && (dirEntry <= buffer + (block_size * from->blocks)))
 	{
 		//me fijo si los nombres tienen la misma longitud, si es asi entonces los comparo
-		if(strlen(filename) == dirEntry->name_length && strncmp(filename, dirEntry->name, dirEntry->name_length))
-			ret = load_inode(dirEntry->inode);		//si encontre el archivo cargo el inodo correspondiente
+		Ext2FSDirEntry * entry = (Ext2FSDirEntry *)dirEntry;
+		if(strlen(filename) == entry->name_length && strncmp(filename, entry->name, entry->name_length)==0)
+			ret = load_inode(entry->inode);		//si encontre el archivo cargo el inodo correspondiente
 
-		dirEntry = (Ext2FSDirEntry*)(dirEntry + dirEntry->record_length);	//voy a la proxima dir entry
+		dirEntry = (dirEntry + entry->record_length);	//voy a la proxima dir entry
 	}
 
 	delete[] buffer;
