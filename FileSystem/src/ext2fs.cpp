@@ -320,7 +320,7 @@ unsigned int Ext2FS::get_block_address(struct Ext2FSInode * inode, unsigned int 
 		unsigned int double_indirect_first_table = inode->block[13];
 		read_block(double_indirect_first_table, buffer);
 		unsigned int double_indirect_second_table = ((unsigned int *)buffer)[(unsigned int)((block_number/addresses_per_block) - 1)];
-		read_block(double_indirect_second_table, buffer);	
+		read_block(double_indirect_second_table, buffer);
 		res = ((unsigned int *)buffer)[(block_number%addresses_per_block) - 1];
 	}
 	else if (block_number < (addresses_per_block*addresses_per_block*addresses_per_block)+12) //indireccion triple
@@ -328,9 +328,9 @@ unsigned int Ext2FS::get_block_address(struct Ext2FSInode * inode, unsigned int 
 		unsigned int triple_indirect_first_table = inode->block[14];
 		read_block(triple_indirect_first_table, buffer);
 		unsigned int triple_indirect_second_table = ((unsigned int *)buffer)[(unsigned int)((block_number/(addresses_per_block*addresses_per_block)) - 1)];
-		read_block(triple_indirect_second_table, buffer);	
+		read_block(triple_indirect_second_table, buffer);
 		unsigned int triple_indirect_third_table = ((unsigned int *)buffer)[(unsigned int)((block_number/addresses_per_block) - 1)];
-		read_block(triple_indirect_third_table, buffer);	
+		read_block(triple_indirect_third_table, buffer);
 		res = ((unsigned int *)buffer)[block_number%addresses_per_block - 1];
 	}
 
@@ -354,7 +354,6 @@ struct Ext2FSInode * Ext2FS::get_file_inode_from_dir_inode(struct Ext2FSInode * 
 	assert(INODE_ISDIR(from));
 
 	unsigned int block_size = 1024 << _superblock->log_block_size;
-
 	unsigned char * buffer = new unsigned char[block_size * from->blocks];
 
 	for(int i = 0; i < from->blocks; i++)
@@ -367,10 +366,10 @@ struct Ext2FSInode * Ext2FS::get_file_inode_from_dir_inode(struct Ext2FSInode * 
 
 	Ext2FSDirEntry* dirEntry = (Ext2FSDirEntry*)buffer;    //me paro en la primer dir entry
 	Ext2FSInode* ret = NULL;	//inicializo lo que voy a devolver
-	while(ret == NULL)
+	while(ret == NULL && (dirEntry <= buffer + (block_size * from->blocks)))
 	{
 		//me fijo si los nombres tienen la misma longitud, si es asi entonces los comparo
-		if(strlen(filename) == dirEntry->lame_length && strncmp(filename, dirEntry->name, dirEntry->name_length))
+		if(strlen(filename) == dirEntry->name_length && strncmp(filename, dirEntry->name, dirEntry->name_length))
 			ret = load_inode(dirEntry->inode);		//si encontre el archivo cargo el inodo correspondiente
 
 		dirEntry = (Ext2FSDirEntry*)(dirEntry + dirEntry->record_length);	//voy a la proxima dir entry
