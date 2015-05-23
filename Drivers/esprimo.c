@@ -31,7 +31,7 @@ bool esPrimo(int n)
 static ssize_t esprimo_write(struct file *file, const char __user *buf, size_t len, loff_t *ppos)
 {
     char buffer[20];
-    if (copy_from_user(buffer,buf,len))
+    if (copy_from_user(buf, buffer,len))
         return -1;
     buffer[len] = 0;
 
@@ -43,12 +43,12 @@ static ssize_t esprimo_write(struct file *file, const char __user *buf, size_t l
 //Funciones de lectura invocada por /dev fs
 static ssize_t esprimo_read(struct file *file, char *buf, size_t count, loff_t *ppos)
 {
-    char buffer[3];
-    int len = sprintf(buffer, "%d", esPrimo(numero));
+    char buffer[2];
+    //int len = sprintf(buffer, "%d", esPrimo(numero));
+    buffer[0] = 'h';
     buffer[1] = 10;
-    buffer[2] = 0;
 
-    if (copy_to_user(buf, buffer,3))
+    if (copy_to_user(buf, buffer,len))
         return -1;
     return len;
 }
