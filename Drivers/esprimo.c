@@ -43,13 +43,14 @@ static ssize_t esprimo_write(struct file *file, const char __user *buf, size_t l
 //Funciones de lectura invocada por /dev fs
 static ssize_t esprimo_read(struct file *file, char *buf, size_t count, loff_t *ppos)
 {
-    char buffer[2];
+    char buffer[3];
     int len = sprintf(buffer, "%d", esPrimo(numero));
     buffer[1] = 10;
+    buffer[2] = 0;
 
-    if (copy_to_user(buf, buffer,len))
+    if (copy_to_user(buf, buffer,3))
         return -1;
-    return len;
+    return 3;
 }
 
 // Estructuras utililizadas por la funcion de registro de dispositivos
