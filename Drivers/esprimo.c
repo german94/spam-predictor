@@ -74,10 +74,10 @@ static int __init esprimo_init(void) {
     if (ret)
         printk(KERN_ERR "No se puede registrar el dispositivo ESPRIMO\n");
 
-    static struct class *esprimoVar;
+    // static struct class *esprimoVar;
 
-    esprimoVar = class_create(THIS_MODULE, "esprimo");
-    device_create(esprimoVar, NULL, 0, NULL, "esprimo");
+    // esprimoVar = class_create(THIS_MODULE, "esprimo");
+    // device_create(esprimoVar, NULL, 0, NULL, "esprimo");
 
     return ret;
 }
