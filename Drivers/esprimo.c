@@ -31,7 +31,7 @@ bool esPrimo(int n)
 static ssize_t esprimo_write(struct file *file, const char __user *buf, size_t len, loff_t *ppos)
 {
     char buffer[20];
-    if (copy_from_user(buf, buffer,len))
+    if (copy_from_user(buffer,buf,len))
         return -1;
     buffer[len] = 0;
 
