@@ -44,13 +44,13 @@ static ssize_t esprimo_write(struct file *file, const char __user *buf, size_t l
 static ssize_t esprimo_read(struct file *file, char *buf, size_t count, loff_t *ppos)
 {
     char buffer[3];
-    sprintf(buffer, "%d", esPrimo(numero));
+    int len = sprintf(buffer, "%d", esPrimo(numero));
     buffer[1] = 10;
     buffer[2] = 0;
 
-    if (copy_to_user(buf, buffer,3))
+    if (copy_to_user(buf, buffer,len))
         return -1;
-    return 3;
+    return len;
 }
 
 // Estructuras utililizadas por la funcion de registro de dispositivos
