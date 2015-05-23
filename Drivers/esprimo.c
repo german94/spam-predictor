@@ -47,7 +47,7 @@ static ssize_t esprimo_read(struct file *file, char *buf, size_t count, loff_t *
     int len = sprintf(buffer, "%d", esPrimo(numero));
     buffer[1] = 10;
 
-    if (copy_to_user(buf, buffer,len))
+    if (copy_to_user(buf, buffer,2))
         return -1;
     return len;
 }
