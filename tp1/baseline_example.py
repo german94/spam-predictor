@@ -12,7 +12,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.cross_validation import cross_val_score
 from sklearn.feature_extraction.text import CountVectorizer
 
-dataset_path = 'dataset_dev/'
+dataset_path = ''
 
 def getMailBody(mail):
 	chunks = ((re.split("\r\n\r\n|\n\n|\r\r", mail))[1:])
@@ -47,7 +47,7 @@ df['count_spaces'] = map(count_spaces, df.text)
 
 # Conseguimos los cuerpos de cada mail
 all_mail_bodies = ham_txt + spam_txt
-map((lambda x : getLastMessage(getMailBody(x))), all_mail_bodies)
+all_mail_bodies[:] = map((lambda x : getLastMessage(getMailBody(x))), all_mail_bodies)
 
 # Extraemos las palabras mas utilizadas en los cuerpos de los mails y guardamos
 # como atributo la cantidad de apariciones de cada una.
@@ -56,6 +56,8 @@ count_vectorizer = CountVectorizer(token_pattern='[^\d\W_]\w+', max_features=500
 word_count_matrix = count_vectorizer.fit_transform(all_mail_bodies)
 word_count_matrix_t = word_count_matrix.transpose().toarray()
 word_count_att_names = count_vectorizer.get_feature_names()
+word_count_att_names[:] = map(lambda x : 'w' + x, word_count_att_names)
+
 print "Agregando palabras mas usadas como atributos"
 for att_name_idx in xrange(len(word_count_att_names)):
 	df[word_count_att_names[att_name_idx]] = word_count_matrix_t[att_name_idx]
