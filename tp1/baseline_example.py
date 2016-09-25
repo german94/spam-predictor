@@ -52,9 +52,15 @@ def clean_tags_regex(html):
 # print spam_txt[0]
 #print "------------------------------------------------------"
 
+#Esto ahora ya no hace falta porque leemos las listas correspondientes a los mails de spam y ham para train y los mails de test
 # Leo los mails.
-ham_txt = json.load(open(dataset_path + 'ham_dev.json'))[]
-spam_txt = json.load(open(dataset_path + 'spam_dev.json'))[]
+#ham_txt = json.load(open(dataset_path + 'ham_dev.json'))[]
+#spam_txt = json.load(open(dataset_path + 'spam_dev.json'))[]
+
+#Esto simplemente levanta las listas de los mails desde los archivos
+ham_txt = pickle.load(open("ham_train_dev", "rb"))
+spam_txt = pickle.load(open("spam_train_dev", "rb"))
+test_txt = pickle.load(open("test_dev", "rb"))
 
 # Armo un dataset de Pandas 
 # http://pandas.pydata.org/
