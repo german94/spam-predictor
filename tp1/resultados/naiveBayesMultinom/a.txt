@@ -1,0 +1,6 @@
+Extrayendo palabras mas usadas
+Agregando palabras mas usadas como atributos
+Corriendo grid search para los hiperparametros de multinomial NB...
+Mejor puntaje de multinomial NB despues de correr grid search: 0.66131313853
+Ejecutando multinomial NB
+0.646598754201 0.0555983615824

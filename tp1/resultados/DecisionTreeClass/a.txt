@@ -1,0 +1,6 @@
+Extrayendo palabras mas usadas
+Agregando palabras mas usadas como atributos
+Corriendo grid search para los hiperparametros de decision tree...
+Mejor puntaje de decision tree despues de correr grid search: 0.954190183611
+Ejecutando decision tree classifier
+0.960633578837 0.0129601810169
