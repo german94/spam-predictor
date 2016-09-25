@@ -15,6 +15,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.grid_search import GridSearchCV
 from sklearn.naive_bayes import GaussianNB
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
 
 #esta funcion es la que limpia de tags html a un texto y ademas te devuelve los tags (start tags, se puede devolver tambien los endtags pero me parecio medio al pedo)
 def strip_tags(html):
@@ -134,8 +135,8 @@ multinomial_nb_clf = MultinomialNB()
 
 # Escribimos todos los parametros que nos gustaria variar
 multinomial_nb_param_grid = {
-    "alpha" = [0.25, 0.5, 0.75, 1.0],
-    "fit_prior" = [true, false]
+    "alpha": [0.25, 0.5, 0.75, 1.0],
+    "fit_prior": [true, false]
 }
 
 # Corremos un grid search para ver que combinacion de atributos es la mejor
@@ -155,6 +156,32 @@ best_mnb_clf = MultinomialNB(
 # Creamos un naive bayes gaussiano
 gaussian_nb_clf = GaussianNB()
 
+# Creamos un KNN classifier
+knn_clf = KNeighborsClassifier()
+
+# Escribimos todos los parametros que nos gustaria variar
+knn_param_grid = {
+    "n_neighbors": [3, 5, 10],
+    "weights": ["uniform", "distance"],
+    "algorithm": ["brute"],
+    "n_jobs": [-1]
+}
+
+# Corremos un grid search para ver que combinacion de atributos es la mejor
+knn_grid_search = GridSearchCV(knn_clf, param_grid=knn_param_grid)
+knn_grid_search.fit(X, y)
+
+print "Mejor puntaje de KNN despues de correr grid search: " + str(knn_grid_search.best_score_)
+
+# Creamos un nuevo multinomial NB a partir de la mejor combinacion de atributos
+# dada por el grid search
+knn_best_params = knn_grid_search.best_params_
+best_knn_clf = KNeighborsClassifier(
+    n_neighbors=knn_param_grid['n_neighbors'],
+    weights=knn_param_grid['weights'],
+    algorithm="brute",
+    n_jobs=-1
+    )
 
 
 # Ejecuto el clasificador entrenando con un esquema de cross validation
