@@ -302,6 +302,9 @@ best_svm_clf = SVC(
 # Ejecutamos el clasificador entrenando con un esquema de CV de 10 folds.
 print "Ejecutando random forest"
 svm_res = cross_val_score(best_svm_clf, X, y, cv=10)
+file = open("best_svm_clf", "wb")
+pickle.dump(best_svm_clf, file)
+file.close()
 print np.mean(svm_res), np.std(svm_res)
 
 
