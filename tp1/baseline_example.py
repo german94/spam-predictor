@@ -12,30 +12,16 @@ from functools import reduce
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.cross_validation import cross_val_score
 from sklearn.feature_extraction.text import CountVectorizer
-from HTMLParser import HTMLParser
-
-#MLStripper y strip_tags sirven para sacar los tags html de un texto (limpiar el texto) y guardarlos en una lista (para contarlos por ejemplo)
-#el problema que tienen es que, al igual que pasa con otras librerias (como la de parsear mails), tira error cuando aparece un caracter raro (unicode).
-#Por eso mas abajo estan las funciones get_tags_regex y clean_tags_regex que simplemente usan una expresion regular. Con estas funciones anda bien,
-#lo que pasa es que, por lo que lei, creo que MLStripper es como mas "exacto", de todas formas no creo que nos traiga problemas. No tiene porque ser perfecto me parece.
-#Lo dejo por las dudas si lo quieren probar para ver si lo pueden hacer andar o algo, en el codigo uso las otras funciones para que compile.
-class MLStripper(HTMLParser):
-    def __init__(self):
-        self.reset()
-        self.fed = []
-        self.tags = []
-    def handle_data(self, d):
-        self.fed.append(d)
-    def get_data(self):
-        return ''.join(self.fed)
-    def handle_starttag(self, tag, attrs):
-        self.tags.append(tag)
+from sklearn.grid_search import GridSearchCV
 
 #esta funcion es la que limpia de tags html a un texto y ademas te devuelve los tags (start tags, se puede devolver tambien los endtags pero me parecio medio al pedo)
 def strip_tags(html):
     s = MLStripper()
     s.feed(html)
     return (s.get_data(), s.tags)
+
+def count_spaces(txt): 
+    return txt.count(" ")
 
 dataset_path = ''
 
@@ -71,11 +57,10 @@ spam_txt = json.load(open(dataset_path + 'spam_dev.json'))[]
 df = pd.DataFrame(ham_txt+spam_txt, columns=['text'])
 df['class'] = ['ham' for _ in range(len(ham_txt))]+['spam' for _ in range(len(spam_txt))]
 
-# Extraigo dos atributos simples: 
+# Extraigo atributos simples: 
 # 1) Longitud del mail.
 df['len'] = map(len, df.text)
 # 2) Cantidad de espacios en el mail.
-def count_spaces(txt): return txt.count(" ")
 df['count_spaces'] = map(count_spaces, df.text)
 # 3) Cantidad de links
 df['links'] = map(getLinks, df.text)
@@ -115,8 +100,31 @@ file.close()
 X = df[['len', 'count_spaces', 'links', 'tags'] + word_count_att_names].values
 y = df['class']
 
-# Elijo mi clasificador.
-clf = DecisionTreeClassifier()
+# Creamos un decision tree classifier
+decision_tree_clf = DecisionTreeClassifier()
+
+# Escribimos todas los parametros que nos gustaria variar en el decision tree
+decision_tree_param_grid = {
+"criterion": ["gini", "entropy"],
+"max_features": [1, 3, 7, 10],
+"max_depth": [2, 3, 5, None],
+"min_samples_split": [1, 3, 5, 10]}
+
+# Corremos un grid search para ver que combinacion de atributos es la mejor
+grid_search = GridSearchCV(decision_tree_clf, param_grid=decision_tree_param_grid)
+grid_search.fit(X, y)
+
+print "Mejor puntaje de decision tree despues de correr grid search: " + str(grid_search.best_score_)
+
+# Creamos un nuevo decision tree a partir de la mejor combinacion de atributos
+# dada por el grid search
+decision_tree_best_params = grid_search.best_params_
+best_decision_tree_clf = DecisionTreeClassifier(
+    criterion=decision_tree_best_params['criterion'],
+    max_depth=decision_tree_best_params['max_depth'],
+    max_features=decision_tree_best_params['max_features'],
+    min_samples_split=decision_tree_best_params['min_samples_split']
+    )
 
 # Ejecuto el clasificador entrenando con un esquema de cross validation
 # de 10 folds.
@@ -124,3 +132,4 @@ print "Ejecutando clasificador"
 res = cross_val_score(clf, X, y, cv=10)
 print np.mean(res), np.std(res)
 # salida: 0.687566666667 0.0190878702354  (o similar)
+
