@@ -20,6 +20,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
+from sklearn.decomposition import PCA
 
 #esta funcion es la que limpia de tags html a un texto y ademas te devuelve los tags (start tags, se puede devolver tambien los endtags pero me parecio medio al pedo)
 def strip_tags(html):
@@ -322,6 +323,10 @@ print np.mean(svm_res), np.std(svm_res)
 
 print "Aplicando reduccion de dimensionalidad/transformacion de datos"
 
+# PCA
+print "Aplicando PCA"
+X_PCA = PCA().fit_transform(X, y)
+
 # Feature selection usando KBest. Usamos chi2 porque estamos usando estructuras
 # esparsas, y la unica funcion que trabaja con ellas sin volverlas densas es chi2.
 # Probamos que cantidad de atributos es mejor, variando el valor entre 20, 50, 100 y 250
@@ -330,7 +335,7 @@ number_of_attrs = [20, 50, 100, 250]
 classifiers = [best_decision_tree_clf, best_mnb_clf, gaussian_nb_clf, best_knn_clf, best_rf_clf, best_svm_clf]
 for n_attrs in number_of_attrs:
     for clf in classifiers:
-        X_new = SelectKBest(chi2, k=n_attrs).fit_transform(X, y)
+        X_new = SelectKBest(chi2, k=n_attrs).fit_transform(X_PCA, y)
         print "Ejecutando " + type(clf).__name__ + " con mejores " + str(n_attrs) + " atributos..."
         best_attrs_res = cross_val_score(clf, X_new, y, cv=10)
         print np.mean(best_attrs_res), np.std(best_attrs_res)
