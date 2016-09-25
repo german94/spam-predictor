@@ -1,0 +1,6 @@
+Extrayendo palabras mas usadas
+Agregando palabras mas usadas como atributos
+Corriendo grid search para los hiperparametros de random forest...
+Mejor puntaje de random forest despues de correr grid search: 0.980995927699
+Ejecutando random forest
+0.984896343774 0.00601118283943
