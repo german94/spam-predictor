@@ -171,7 +171,7 @@ print "Mejor puntaje de multinomial NB despues de correr grid search: " + str(mn
 # dada por el grid search
 mnb_best_params = mnb_grid_search.best_params_
 best_mnb_clf = MultinomialNB(
-    alpha=mnb_best_params['params'],
+    alpha=mnb_best_params['alpha'],
     fit_prior=mnb_best_params['fit_prior']
     )
 
