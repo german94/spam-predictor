@@ -143,6 +143,9 @@ best_decision_tree_clf = DecisionTreeClassifier(
 # Ejecutamos el clasificador entrenando con un esquema de CV de 10 folds.
 print "Ejecutando decision tree classifier"
 dt_res = cross_val_score(best_decision_tree_clf, X, y, cv=10)
+file = open("best_decision_tree_clf", "wb")
+pickle.dump(best_decision_tree_clf, file)
+file.close()
 print np.mean(dt_res), np.std(dt_res)
 
 #############################################
@@ -153,7 +156,7 @@ multinomial_nb_clf = MultinomialNB()
 # Escribimos todos los parametros que nos gustaria variar
 multinomial_nb_param_grid = {
     "alpha": [0.25, 0.5, 0.75, 1.0],
-    "fit_prior": [true, false]
+    "fit_prior": [True, False]
 }
 
 # Corremos un grid search para ver que combinacion de atributos es la mejor
@@ -174,6 +177,9 @@ best_mnb_clf = MultinomialNB(
 # Ejecutamos el clasificador entrenando con un esquema de CV de 10 folds.
 print "Ejecutando multinomial NB"
 mnb_res = cross_val_score(best_mnb_clf, X, y, cv=10)
+file = open("best_mnb_clf", "wb")
+pickle.dump(best_mnb_clf, file)
+file.close()
 print np.mean(mnb_res), np.std(mnb_res)
 
 #############################################
@@ -219,6 +225,9 @@ best_knn_clf = KNeighborsClassifier(
 # Ejecutamos el clasificador entrenando con un esquema de CV de 10 folds.
 print "Ejecutando KNN"
 knn_res = cross_val_score(best_knn_clf, X, y, cv=10)
+file = open("best_knn_clf", "wb")
+pickle.dump(best_knn_clf, file)
+file.close()
 print np.mean(knn_res), np.std(knn_res)
 
 #############################################
@@ -258,6 +267,9 @@ best_rf_clf = RandomForestClassifier(
 # Ejecutamos el clasificador entrenando con un esquema de CV de 10 folds.
 print "Ejecutando random forest"
 rf_res = cross_val_score(best_rf_clf, X, y, cv=10)
+file = open("best_rf_clf", "wb")
+pickle.dump(best_rf_clf, file)
+file.close()
 print np.mean(rf_res), np.std(rf_res)
 
 #############################################
