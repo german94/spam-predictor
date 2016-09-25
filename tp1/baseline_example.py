@@ -49,6 +49,13 @@ def get_tags_regex(html):
 def clean_tags_regex(html):
 	return re.sub('<[^<]+?>', '', html)
 
+def raros(s): 
+    cant = 0
+    for x in s:
+        if (1 <= ord(x) and ord(x) <= 32) or (127 <= ord(x) and ord(x) <= 160):
+            cant = cant +1
+    return cant     
+
 #print "------------------------------------------------------"
 # print spam_txt[0]
 #print "------------------------------------------------------"
@@ -77,6 +84,8 @@ df['count_spaces'] = map(count_spaces, df.text)
 df['links'] = map(getLinks, df.text)
 # 4) Cantidad de tags
 df['tags'] = map(get_tags_regex, df.text)
+# 5) cantidad de caracteres raros
+df['rare'] = map(raros,df.text)
 
 # Conseguimos los cuerpos de cada mail
 all_mail_bodies = ham_txt + spam_txt
@@ -108,7 +117,7 @@ file.close()
 #df = pickle.load(open("df", "r"))
 #word_count_att_names = pickle.load(open("word_count_att_names", "r"))
 # Preparo data para clasificar
-X = df[['len', 'count_spaces', 'links', 'tags'] + word_count_att_names].values
+X = df[['len', 'count_spaces', 'links', 'tags','rare'] + word_count_att_names].values
 y = df['class']
 
 #############################################
