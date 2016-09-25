@@ -59,6 +59,9 @@ def raros(s):
             cant = cant +1
     return cant     
 
+def deleteSpecialChars(s):
+    return re.sub('[^A-Za-z0-9]+', '', mystring)
+
 #print "------------------------------------------------------"
 # print spam_txt[0]
 #print "------------------------------------------------------"
@@ -101,7 +104,7 @@ count_vectorizer = CountVectorizer(token_pattern='[^\d\W_]\w+', max_features=500
 word_count_matrix = count_vectorizer.fit_transform(all_mail_bodies)
 word_count_matrix_t = word_count_matrix.transpose().toarray()
 word_count_att_names = count_vectorizer.get_feature_names()
-word_count_att_names[:] = map(lambda x : 'w' + x, word_count_att_names)
+word_count_att_names[:] = map(lambda x : 'w' + deleteSpecialChars(x), word_count_att_names)
 
 #codigo para guardar word_count_att_names
 file = open("word_count_att_names", "wb")
