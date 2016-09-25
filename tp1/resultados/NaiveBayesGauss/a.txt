@@ -1,0 +1,4 @@
+Extrayendo palabras mas usadas
+Agregando palabras mas usadas como atributos
+Ejecutando gaussian NB
+0.600660592175 0.101459085003
