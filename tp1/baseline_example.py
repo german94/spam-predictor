@@ -16,6 +16,7 @@ from sklearn.grid_search import GridSearchCV
 from sklearn.naive_bayes import GaussianNB
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 #esta funcion es la que limpia de tags html a un texto y ademas te devuelve los tags (start tags, se puede devolver tambien los endtags pero me parecio medio al pedo)
 def strip_tags(html):
@@ -103,6 +104,8 @@ file.close()
 X = df[['len', 'count_spaces', 'links', 'tags'] + word_count_att_names].values
 y = df['class']
 
+#############################################
+
 # Creamos un decision tree classifier
 decision_tree_clf = DecisionTreeClassifier()
 
@@ -115,6 +118,7 @@ decision_tree_param_grid = {
 }
 
 # Corremos un grid search para ver que combinacion de atributos es la mejor
+print "Corriendo grid search para los hiperparametros de decision tree..."
 dt_grid_search = GridSearchCV(decision_tree_clf, param_grid=decision_tree_param_grid)
 dt_grid_search.fit(X, y)
 
@@ -130,6 +134,13 @@ best_decision_tree_clf = DecisionTreeClassifier(
     min_samples_split=decision_tree_best_params['min_samples_split']
     )
 
+# Ejecutamos el clasificador entrenando con un esquema de CV de 10 folds.
+print "Ejecutando decision tree classifier"
+dt_res = cross_val_score(best_decision_tree_clf, X, y, cv=10)
+print np.mean(dt_res), np.std(dt_res)
+
+#############################################
+
 # Creamos un naive bayes multinomial
 multinomial_nb_clf = MultinomialNB()
 
@@ -140,6 +151,7 @@ multinomial_nb_param_grid = {
 }
 
 # Corremos un grid search para ver que combinacion de atributos es la mejor
+print "Corriendo grid search para los hiperparametros de multinomial NB..."
 mnb_grid_search = GridSearchCV(multinomial_nb_clf, param_grid=multinomial_nb_param_grid)
 mnb_grid_search.fit(X, y)
 
@@ -153,8 +165,22 @@ best_mnb_clf = MultinomialNB(
     fit_prior=mnb_best_params['fit_prior']
     )
 
+# Ejecutamos el clasificador entrenando con un esquema de CV de 10 folds.
+print "Ejecutando multinomial NB"
+mnb_res = cross_val_score(best_mnb_clf, X, y, cv=10)
+print np.mean(mnb_res), np.std(mnb_res)
+
+#############################################
+
 # Creamos un naive bayes gaussiano
 gaussian_nb_clf = GaussianNB()
+
+# Ejecutamos el clasificador entrenando con un esquema de CV de 10 folds.
+print "Ejecutando gaussian NB"
+gaussian_nb_res = cross_val_score(gaussian_nb_clf, X, y, cv=10)
+print np.mean(gaussian_nb_res), np.std(gaussian_nb_res)
+
+#############################################
 
 # Creamos un KNN classifier
 knn_clf = KNeighborsClassifier()
@@ -163,11 +189,12 @@ knn_clf = KNeighborsClassifier()
 knn_param_grid = {
     "n_neighbors": [3, 5, 10],
     "weights": ["uniform", "distance"],
-    "algorithm": ["brute"],
-    "n_jobs": [-1]
+    "algorithm": ["brute"], # como la matriz de count_vectorizer es sparse, hay que usar fuerza bruta
+    "n_jobs": [-1] # esto es para que paralelice por cantidad de nucleos
 }
 
 # Corremos un grid search para ver que combinacion de atributos es la mejor
+print "Corriendo grid search para los hiperparametros de KNN..."
 knn_grid_search = GridSearchCV(knn_clf, param_grid=knn_param_grid)
 knn_grid_search.fit(X, y)
 
@@ -177,17 +204,54 @@ print "Mejor puntaje de KNN despues de correr grid search: " + str(knn_grid_sear
 # dada por el grid search
 knn_best_params = knn_grid_search.best_params_
 best_knn_clf = KNeighborsClassifier(
-    n_neighbors=knn_param_grid['n_neighbors'],
-    weights=knn_param_grid['weights'],
+    n_neighbors=knn_best_params['n_neighbors'],
+    weights=knn_best_params['weights'],
     algorithm="brute",
     n_jobs=-1
     )
 
+# Ejecutamos el clasificador entrenando con un esquema de CV de 10 folds.
+print "Ejecutando KNN"
+knn_res = cross_val_score(best_knn_clf, X, y, cv=10)
+print np.mean(knn_res), np.std(knn_res)
 
-# Ejecuto el clasificador entrenando con un esquema de cross validation
-# de 10 folds.
-print "Ejecutando clasificador"
-res = cross_val_score(clf, X, y, cv=10)
-print np.mean(res), np.std(res)
-# salida: 0.687566666667 0.0190878702354  (o similar)
+#############################################
 
+# Creamos un random forest classifier
+rf_clf = RandomForestClassifier()
+
+# Escribimos todos los parametros que nos gustaria variar
+rf_param_grid = {
+    "n_estimators": [5, 10, 20],
+    "criterion": ["gini", "entropy"],
+    "max_features": [1, 3, 7, 10],
+    "max_depth": [2, 3, 5, None],
+    "min_samples_split": [1, 3, 5, 10],
+    "n_jobs": [-1] # esto es para que paralelice por cantidad de nucleos
+}
+
+# Corremos un grid search para ver que combinacion de atributos es la mejor
+print "Corriendo grid search para los hiperparametros de random forest..."
+rf_grid_search = GridSearchCV(rf_clf, param_grid=rf_param_grid)
+rf_grid_search.fit(X, y)
+
+print "Mejor puntaje de random forest despues de correr grid search: " + str(rf_grid_search.best_score_)
+
+# Creamos un nuevo multinomial NB a partir de la mejor combinacion de atributos
+# dada por el grid search
+knn_rf_params = rf_grid_search.best_params_
+best_rf_clf = RandomForestClassifier(
+    n_estimators=best_rf_clf['n_estimators'],
+    criterion=best_rf_clf['criterion'],
+    max_features=best_rf_clf['max_features'],
+    max_depth=best_rf_clf['max_depth'],
+    min_samples_split=best_rf_clf['min_samples_split'],
+    n_jobs=-1
+    )
+
+# Ejecutamos el clasificador entrenando con un esquema de CV de 10 folds.
+print "Ejecutando random forest"
+rf_res = cross_val_score(best_rf_clf, X, y, cv=10)
+print np.mean(rf_res), np.std(rf_res)
+
+#############################################
