@@ -17,6 +17,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 
 #esta funcion es la que limpia de tags html a un texto y ademas te devuelve los tags (start tags, se puede devolver tambien los endtags pero me parecio medio al pedo)
 def strip_tags(html):
@@ -206,7 +207,7 @@ knn_grid_search.fit(X, y)
 
 print "Mejor puntaje de KNN despues de correr grid search: " + str(knn_grid_search.best_score_)
 
-# Creamos un nuevo multinomial NB a partir de la mejor combinacion de atributos
+# Creamos un nuevo clasificador KNN a partir de la mejor combinacion de atributos
 # dada por el grid search
 knn_best_params = knn_grid_search.best_params_
 best_knn_clf = KNeighborsClassifier(
@@ -243,15 +244,15 @@ rf_grid_search.fit(X, y)
 
 print "Mejor puntaje de random forest despues de correr grid search: " + str(rf_grid_search.best_score_)
 
-# Creamos un nuevo multinomial NB a partir de la mejor combinacion de atributos
+# Creamos un nuevo clasificador random forest a partir de la mejor combinacion de atributos
 # dada por el grid search
-knn_rf_params = rf_grid_search.best_params_
+rf_best_params = rf_grid_search.best_params_
 best_rf_clf = RandomForestClassifier(
-    n_estimators=best_rf_clf['n_estimators'],
-    criterion=best_rf_clf['criterion'],
-    max_features=best_rf_clf['max_features'],
-    max_depth=best_rf_clf['max_depth'],
-    min_samples_split=best_rf_clf['min_samples_split'],
+    n_estimators=rf_best_params['n_estimators'],
+    criterion=rf_best_params['criterion'],
+    max_features=rf_best_params['max_features'],
+    max_depth=rf_best_params['max_depth'],
+    min_samples_split=rf_best_params['min_samples_split'],
     n_jobs=-1
     )
 
@@ -261,3 +262,34 @@ rf_res = cross_val_score(best_rf_clf, X, y, cv=10)
 print np.mean(rf_res), np.std(rf_res)
 
 #############################################
+
+# Creamos un SVM classifier
+svm_clf = SVC()
+
+# Escribimos todos los parametros que nos gustaria variar
+svm_param_grid = {
+    "kernel": ["poly", "rbf"],
+    "degree": [3, 4, 5],
+}
+
+# Corremos un grid search para ver que combinacion de atributos es la mejor
+print "Corriendo grid search para los hiperparametros de SVM..."
+svm_grid_search = GridSearchCV(svm_clf, param_grid=svm_param_grid)
+svm_grid_search.fit(X, y)
+
+print "Mejor puntaje de SVM despues de correr grid search: " + str(svm_grid_search.best_score_)
+
+# Creamos un nuevo clasificador SVM a partir de la mejor combinacion de atributos
+# dada por el grid search
+svm_best_params = svm_grid_search.best_params_
+best_svm_clf = SVC(
+    kernel=svm_best_params['kernel'],
+    degree=svm_best_params['degree']
+    )
+
+# Ejecutamos el clasificador entrenando con un esquema de CV de 10 folds.
+print "Ejecutando random forest"
+svm_res = cross_val_score(best_svm_clf, X, y, cv=10)
+print np.mean(svm_res), np.std(svm_res)
+
+
