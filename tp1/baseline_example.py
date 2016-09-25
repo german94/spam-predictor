@@ -13,6 +13,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.cross_validation import cross_val_score
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.grid_search import GridSearchCV
+from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import MultinomialNB
 
 #esta funcion es la que limpia de tags html a un texto y ademas te devuelve los tags (start tags, se puede devolver tambien los endtags pero me parecio medio al pedo)
 def strip_tags(html):
@@ -105,26 +107,55 @@ decision_tree_clf = DecisionTreeClassifier()
 
 # Escribimos todas los parametros que nos gustaria variar en el decision tree
 decision_tree_param_grid = {
-"criterion": ["gini", "entropy"],
-"max_features": [1, 3, 7, 10],
-"max_depth": [2, 3, 5, None],
-"min_samples_split": [1, 3, 5, 10]}
+    "criterion": ["gini", "entropy"],
+    "max_features": [1, 3, 7, 10],
+    "max_depth": [2, 3, 5, None],
+    "min_samples_split": [1, 3, 5, 10]
+}
 
 # Corremos un grid search para ver que combinacion de atributos es la mejor
-grid_search = GridSearchCV(decision_tree_clf, param_grid=decision_tree_param_grid)
-grid_search.fit(X, y)
+dt_grid_search = GridSearchCV(decision_tree_clf, param_grid=decision_tree_param_grid)
+dt_grid_search.fit(X, y)
 
-print "Mejor puntaje de decision tree despues de correr grid search: " + str(grid_search.best_score_)
+print "Mejor puntaje de decision tree despues de correr grid search: " + str(dt_grid_search.best_score_)
 
 # Creamos un nuevo decision tree a partir de la mejor combinacion de atributos
 # dada por el grid search
-decision_tree_best_params = grid_search.best_params_
+decision_tree_best_params = dt_grid_search.best_params_
 best_decision_tree_clf = DecisionTreeClassifier(
     criterion=decision_tree_best_params['criterion'],
     max_depth=decision_tree_best_params['max_depth'],
     max_features=decision_tree_best_params['max_features'],
     min_samples_split=decision_tree_best_params['min_samples_split']
     )
+
+# Creamos un naive bayes multinomial
+multinomial_nb_clf = MultinomialNB()
+
+# Escribimos todos los parametros que nos gustaria variar
+multinomial_nb_param_grid = {
+    "alpha" = [0.25, 0.5, 0.75, 1.0],
+    "fit_prior" = [true, false]
+}
+
+# Corremos un grid search para ver que combinacion de atributos es la mejor
+mnb_grid_search = GridSearchCV(multinomial_nb_clf, param_grid=multinomial_nb_param_grid)
+mnb_grid_search.fit(X, y)
+
+print "Mejor puntaje de multinomial NB despues de correr grid search: " + str(mnb_grid_search.best_score_)
+
+# Creamos un nuevo multinomial NB a partir de la mejor combinacion de atributos
+# dada por el grid search
+mnb_best_params = mnb_grid_search.best_params_
+best_mnb_clf = MultinomialNB(
+    alpha=mnb_best_params['params'],
+    fit_prior=mnb_best_params['fit_prior']
+    )
+
+# Creamos un naive bayes gaussiano
+gaussian_nb_clf = GaussianNB()
+
+
 
 # Ejecuto el clasificador entrenando con un esquema de cross validation
 # de 10 folds.
