@@ -76,3 +76,25 @@ for n_attrs in number_of_attrs:
         print "Ejecutando " + type(clf).__name__ + " con mejores " + str(n_attrs) + " atributos..."
         best_attrs_res = cross_val_score(clf, X_new, y, cv=10)
         print np.mean(best_attrs_res), np.std(best_attrs_res)
+
+
+
+atributos = ['len', 'count_spaces', 'links', 'tags','rare'] + word_count_att_names
+
+#ejemplo de como conseguir los nombre de los mejores atributos usados para el caso de los for anteriores
+#quedan guardados los nombres en attr_usados basicamente get_support tiene true en la pos i si el atributo[i] fue uno de los k mejores 
+# print "Aplicando K-Best selection"
+# number_of_attrs = [300, 320, 370, 400, 420, 450]
+
+# for n_attrs in number_of_attrs:
+# 	best = SelectKBest(chi2, k=n_attrs) #agregado
+# 	X_new = best.fit_transform(X, y) #agregado
+# 	support = best.get_support() #agregado
+# 	attr_usados = [atributos[i] for i in range(0, len(support)) if support[i]] #agregado
+# 	file = open("resultados/X_new_" + str(n_attrs), "wb")
+# 	pickle.dump(X_new, file)
+# 	file.close()
+# 	for clf in classifiers:
+# 		print "Ejecutando " + type(clf).__name__ + " con mejores " + str(n_attrs) + " atributos..."
+# 		best_attrs_res = cross_val_score(clf, X_new, y, cv=10)
+# 		print np.mean(best_attrs_res), np.std(best_attrs_res)        
