@@ -1,0 +1,184 @@
+\documentclass[a4paper]{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[usenames]{color}
+\usepackage{charter}   % tipografia
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage{listings}
+\usepackage{color}
+%\usepackage{indentfirst}
+\usepackage{fancyhdr}
+\usepackage{verbatim}
+\usepackage{latexsym}
+\usepackage{lastpage}
+\usepackage[colorlinks=true, linkcolor=black]{hyperref}
+%\usepackage{makeidx}
+%\usepackage{float}
+\usepackage{calc}
+\usepackage{amsthm, amssymb}
+\usepackage[nosumlimits]{amsmath} % este package hace que se vean mal los incides en las sumatorias, pero permite poner uno abajo del otro en la ecuacon de los L de laagrange
+
+\usepackage{subfig}
+
+\usepackage{amsfonts}
+\definecolor{gray}{gray}{0.5}
+\definecolor{light-gray}{gray}{0.95}
+\definecolor{orange}{rgb}{1,0.5,0}
+
+\input{codesnippet}
+\input{page.layout}
+\usepackage{underscore}
+\usepackage{caratulaV}
+\usepackage{url}
+\usepackage{float}
+
+\usepackage{underscore}
+\usepackage{alltt}
+\usepackage{tikz}
+\usepackage{color}
+\usepackage{verbatim}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3,
+  numbers=left,
+  xleftmargin=2em,
+  frame=single,
+  framexleftmargin=2em,
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\small\color{gray} % the style that is used for the line-numbers
+ }
+
+\parskip = 5 pt
+
+\newcounter{row}
+\newcounter{col}
+
+\newcommand\setrow[3]{
+	\setcounter{col}{1}
+	\foreach \n in {#1, #2, #3} {
+	\edef\x{\value{col} - 0.5}
+	\edef\y{3.5 - \value{row}}
+	\node[anchor=center] at (\x, \y) {\n};
+	\stepcounter{col}
+	}
+	\stepcounter{row}
+}
+
+
+
+\newcommand\setrowaux[7]{
+	\setcounter{col}{1}
+	\foreach \n in {#1, #2, #3, #4, #5, #6, #7} {
+	\edef\x{\value{col} - 0.5}
+	\edef\y{7.5 - \value{row}}
+	\node[anchor=center] at (\x, \y) {\n};
+	\stepcounter{col}
+	}
+	\stepcounter{row}
+}
+
+\newcommand\setrowauxx[4]{
+	\setcounter{col}{1}
+	\foreach \n in {#1, #2, #3, #4} {
+	\edef\x{\value{col} - 0.5}
+	\edef\y{4.5 - \value{row}}
+	\node[anchor=center] at (\x, \y) {\n};
+	\stepcounter{col}
+	}
+	\stepcounter{row}
+}
+
+
+\begin{document}
+
+
+\parskip = 5 pt
+\thispagestyle{empty}
+\materia{Aprendizaje Automático}
+\titulo{Trabajo Práctico 1}
+\integrante{Gustavo Cairo}{Xxx}{gj.cairo@gmail.com}
+\integrante{Germán Pinzón}{475/13}{pinzon.german.94@gmail.com}
+\integrante{Ángel More}{931/12}{angel\_21\_fer@hotmail.com}
+
+\maketitle
+
+
+
+
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+
+\newpage
+\section{Introducción:}
+
+
+
+
+
+\newpage
+
+\section{Desarrollo:}
+
+\subsection{Extracción de atributos:}
+
+Se realizaron un total de 505 extracciones de atributos sobre, aproximadamente, 70K de mails (nuestro set train). 
+
+Los atributos seleccionados fueron los siguientes:
+\begin{itemize}
+\item Len : Se toma como atributo la longitud de cada mail.
+\item count\_spaces : representa la cantidad de espacios que contienen los mails.
+\item links : Cantidad de enlaces https que contienen.
+\item tags : cantidad de tags html encontrados.
+\item rare : Este atributo representa la cantidad de caracteres, que a nuestro criterio, serian poco comunes encontrar en un mail del tipo Ham.
+\item word\_count\_att\_names : Para este caso se extrajeron las 500 palabras mas utilizadas del total de mails utilizados como base de entrenamiento. \\
+Para la extracción se exceptuó tanto el encabezado de cada mail como la porción de texto que corresponde a mensajes reenviados. Tomamos estas decisiones porque de esta manera estamos excluyendo palabras que usualmente pueden estar presentes sin importar el tipo de mail, y por lo que considerarlas no nos brindaría ningún tipo información representativa a la hora de querer clasificarlos.     
+
+\end{itemize}
+
+
+
+\subsection{Modelos:}
+
+
+
+
+
+\subsection{Reducción de dimensionalidad:}
+
+
+
+\newpage
+
+\subsection{Resultados:}
+
+
+
+\newpage
+
+\subsection{Discusión:}
+
+
+
+\newpage
+
+\section{Conclusión:}
+\end{document}
