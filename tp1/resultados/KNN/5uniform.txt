@@ -1,0 +1,6 @@
+
+knn para 5 vecinos ; uniform
+Extrayendo palabras mas usadas
+Agregando palabras mas usadas como atributos
+Ejecutando KNN
+0.881343620255 0.0378220251584

@@ -1,0 +1,4 @@
+Extrayendo palabras mas usadas
+Agregando palabras mas usadas como atributos
+Ejecutando KNN
+0.880300491592 0.0356141351681
