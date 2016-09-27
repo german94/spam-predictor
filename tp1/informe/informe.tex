@@ -130,7 +130,21 @@
 \newpage
 \section{Introducción:}
 
+El presente trabajo tiene como objetivo elaborar un clasificador de mails en Spam y Ham. Para lograr esto trabajaremos con distintos modelos de predicción. 
 
+
+Dado que los modelos necesitan de ciertos atributos para poder analizar, catalogar y así predecir , extraeremos un conjunto de atributos significativos de nuestro conjunto de mail.
+
+
+Trabajaremos sobre un total de 90K de mails, de los cuales utilizaremos 70K como base de entrenamiento para los modelos y el resto como test set. 
+ Evaluaremos distintas combinaciones y variaciones dentro de los modelos comparando la exactitud de cada uno así como el costo temporal que estos implican. 
+ 
+ Finalmente seleccionaremos los mejores y los utilizaremos para clasificar a los mails perteneciente al test set y de esta manera tener una aproximación de como se comportaría el clasificador frente a nuevos datos.  
+ 
+ 
+El código será elaborado en lenguaje python. Como bibliotecas destacadas utilizaremos $Pandas$, esta nos permitirá el almacenamiento de los mails y sus atributos dentro de la estructura $DataFrame$.
+
+Las funciones que representen a los distintos modelos serán provistas por la biblioteca $sklearn$.
 
 
 
