@@ -121,9 +121,6 @@
 
 \maketitle
 
-
-
-
 \newpage
 \tableofcontents
 \thispagestyle{empty}
@@ -131,32 +128,25 @@
 \newpage
 \section{Introducción}
 
-
-
-
-
 \newpage
 
 \section{Desarrollo}
 
 \subsection{Extracción de atributos}
-
-Se realizaron un total de 505 extracciones de atributos sobre, aproximadamente, 70K de mails (nuestro \textit{training set}, sin la porción separada para hacer el test final).
+Se realizaron un total de 505 extracciones de atributos sobre, aproximadamente, 70K de mails. Dicho conjunto de mails sera nuestro training set mientras que los 20K restantes se corresponderán con nuestro test set. Estos 20.000 mails de test fueron extraídos de manera aleatoria utilizando la función $random.sample$, y no fueron utilizados para el entrenamiento de los clasificadores.
 
 Los atributos seleccionados fueron los siguientes:
 \begin{itemize}
 \item \textit{len}: longitud de cada mail.
 \item \textit{count\_spaces}: cantidad de espacios que contienen los mails.
-\item \textit{links}: cantidad de enlaces que contienen los mails.
-\item \textit{tags}: cantidad de tags HTML encontrados.
+\item \textit{links}: cantidad de enlaces que contienen los mails. Lo consideramos importante ya que suponemos que un tipo de mail spam generalmente es aquel con publicidades y estos contienen distintos enlaces a sus diversos servicios comerciales; o así haciendo referencia a noticias.
+\item \textit{tags}: cantidad de tags HTML encontrados. A veces podemos encontrar en los mails no sólo enlaces, sino imágenes, publicidades, noticias, etc. que se pueden visualizar dentro del propio mail, así como también formateo excesivo de los mismos (muchos colores, etc.) por lo que la presencia y/o cantidad de etiquetas HTML deberían constituir otro atributo distintivo.
 \item \textit{rare}: este atributo representa la cantidad de caracteres que podrían ser considerados poco comunes de encontrar en un mail del tipo Ham.
 \item \textit{500 palabras que más aparecieron en los mails}: se extrajeron las 500 palabras más utilizadas del total de mails utilizados como base de entrenamiento. \\
-
 Para la extracción se exceptuó tanto el encabezado de cada mail como la porción de texto que corresponde a mensajes reenviados. Tomamos estas decisiones porque de esta manera estamos excluyendo palabras que usualmente pueden estar presentes sin importar el tipo de mail, y por lo que considerarlas no nos brindaría ningún tipo información representativa a la hora de querer clasificarlos.     
 \end{itemize}
 
 \subsection{Modelos}
-
 Decidimos trabajar con los siguientes algoritmos de aprendizaje:
 
 \begin{itemize}
@@ -230,17 +220,36 @@ Para el Random Forest Classifier variamos los siguientes hiperparámetros:
 \indent El \textit{accuracy} arrojado luego de hacer cross-validation fue aproximadamente 0.98 ($+/-$0.006).
 
 \subsection{Reducción de dimensionalidad}
+Las técnicas que decidimos emplear para reducir la dimensionalidad fueron PCA, selección de $K$ mejores atributos y selección de percentil. Estas tres técnicas fueron combinadas siempre que fue posible y probadas con distintos parámetros en el caso de las últimas dos.
 
+Para el caso de selección de $K$ mejores atributos variamos el K con los siguientes valores: 20, 50, 100, 150, 200, 250, 300, 320, 370, 400, 420 y 450 ya que pensamos que constituían una gama relativamente amplia de valores posibles, considerando que estamos trabajando con un total de 505 atributos. En el caso de la selección de percentil variamos el parámetro percentil con los valores 5, 10, 15 y 25. Además, dado que en algunos casos decidimos hacer una combinación de técnicas aplicando primero $PCA$ y luego alguna de las otras dos, también utilizamos dos funciones distintas en el parámetro $score\_func$ correspondiente a $SelectKBest$ y $SelectPercentile$.
+
+Las funciones que utilizamos en el parámetro $score\_func$ fueron $chi2$ y $f\_classif$. Cuando decidimos aplicar primero $PCA$ y luego algún tipo de selección entonces tuvimos que utilizar la función $f\_classif$ debido a que si no se presentaban inconvenientes por valores negativos que aparecían en la matriz luego de la transformación que aplicaba $PCA$ ($chi2$ sólo acepta valores positivos, y PCA dejaba algunos valores negativos en el nuevo espacio). Sin embargo cuando aplicamos las funciones de selección por separado, sin combinarlas con $PCA$, pudimos experimentar tanto con $chi2$ como con $f\_classif$.
+
+Un aspecto importante a rescatar es que tuvimos que hacer utilización de la clase $Pipeline$ de sklearn. Esto se debe a que como vamos a estar realizando ciertas transformaciones a los datos con los que nuestro clasificador vaya a entrenar, es necesario que dichas transformaciones se realicen en el momento indicado que es dentro de la función $cross\_val\_score$ (que usamos para medir la performance de nuestro clasificador en esta instancia). Así, si por ejemplo decidimos aplicar primero $PCA$ y luego $SelectKBest$ con $chi2$ y $K = 200$, entonces estas dos funciones (con parámetros en el caso de la segunda) van a ser steps en el pipeline que utilizará $cross\_val\_score$.
+
+Finalmente para poder tener cierta variedad de transformaciones posibles en los datos a la hora de aplicar los clasificadores y decidir con cual quedarnos, vamos a estar aplicando lo siguiente:
 \begin{itemize}
-	\item PCA
-	\item Select K Best Features
-	\item Select Percentile
-	\item PCA + Select K Best Features
-	\item PCA + Select Percentile
+\item $PCA$
+\item $SelectKBest$ con los valores de $K$ mencionados anteriormente y el parámetro $score\_func$ tanto con $f\_classif$ como con $chi2$
+\item $SelectPercentile$ con los valores de $percentile$ mencionados anteriormente
+\item $PCA$ y luego $SelectKBest$ (mismos valores de $K$ pero con $f\_classif$ en $score\_func$)
+\item $PCA$ y luego $SelectPercentile$ (mismos valores de $percentile$)
 \end{itemize}
 
+Luego de hacer las transformaciones anteriores a los datos se aplicará cada uno de los clasificadores elegidos a excepción de Naive Bayes Multinomial en los casos donde se utilice $PCA$ ya que este clasificador no puede tratar ciertos valores negativos que aparecen en la matriz luego de la transformación.
 
-\subsection{Resultados}
+
+\subsection{Resultados y selección del mejor clasificador}
+Podemos describir nuestra estrategia para la elección del mejor clasificador de la siguiente forma:
+\begin{itemize}
+	\item  Luego de realizar Grid Search y buscar los mejores parámetros dentro de cierto rango para cada clasificador (a excepción de $SVM$ por su complejidad temporal y $GaussianNB$ porque no recibe parámetros), comparamos los valores de \textit{accuracy} arrojados por cross-validation (detallados en la sección de Modelos). En esta etapa ya es notorio que los clasificadores más performantes son Random Forest y Decision Tree, seguidos de KNN, y por último y con bastante peor desempeño, Naive Bayes Multinomial (se mostrarán los gráficos con los valores específicos más abajo).
+	\item Por otro lado, como explicamos en la sección de reducción de dimensionalidad, también calculamos el score de cross-validation para cada clasificador sobre los datos transformados por cada una de las técnicas (o combinación de técnicas).
+\end{itemize}
+
+Una vez hecho lo anterior, procedimos a elegir la mejor configuración de datos que recibe cada clasificador. Es decir, en algunos casos una reducción de dimensionalidad pudo resultar más beneficiosa y en otros no, con lo cual para cada clasificador decidimos si vamos a transformar los datos antes de utilizarlo (y qué tipo de transformación vamos a estar realizando) o no. \\
+
+Si bien más abajo se mostrarán los resultados de una manera gráfica y precisa, por lo general pudimos observar que aplicar alguna transformación a los datos siempre va a resultar mejor que no hacerlo. Una vez hecho esto, y seleccionados los clasificadores con sus correspondientes transformaciones, los aplicamos sobre los datos de test (que no fueron utilizados antes). Esto nos brinda una visión mucho más realista de la performance de nuestros clasificadores y nos da cierta seguridad de no haber estado haciendo \textit{overfitting} ya que, como mencionamos, estos datos fueron separados desde el principio y los clasificadores no fueron entrenados con ellos.
 
 \subsection{Discusión}
 
