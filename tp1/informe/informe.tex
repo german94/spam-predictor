@@ -140,17 +140,18 @@
 
 \subsection{Extracción de atributos:}
 
-Se realizaron un total de 505 extracciones de atributos sobre, aproximadamente, 70K de mails (nuestro set train). 
+Para comenzar con la construcción de los modelos realizaremos la extracción de un conjunto de atributos que creemos pueden permitirnos diferenciar un mail Spam de uno Ham. Realizamos un total de 505 extracciones sobre 70K de mails (aproximadamente). Dicho conjunto de mail sera nuestro train set mientras que otros 20K se corresponderan a nuestro test set.
 
 Los atributos seleccionados fueron los siguientes:
 \begin{itemize}
 \item Len : Se toma como atributo la longitud de cada mail.
 \item count\_spaces : representa la cantidad de espacios que contienen los mails.
-\item links : Cantidad de enlaces https que contienen.
-\item tags : cantidad de tags html encontrados.
+\item links : Cantidad de enlaces https que contienen. Ya que suponemos que un tipo de mail spam generalmente es aquel con publicidades y estos con tienen distintos enlaces a sus diversos servicios comerciales; o así también haciendo referencia a  noticias.
+\item tags : cantidad de tags html encontrados. A veces no solo podemos encontrar en los mail enlaces como los que describimos para el atributo "links"; sino que la imágenes, publicidades, noticias, etc se pueden visualizar dentro del propio mail por lo que la presencia y/o cantidad de etiquetas html deberían ser mayor en los spam. De esta manera constituiría otro atributo distintivo. 
 \item rare : Este atributo representa la cantidad de caracteres, que a nuestro criterio, serian poco comunes encontrar en un mail del tipo Ham.
 \item word\_count\_att\_names : Para este caso se extrajeron las 500 palabras mas utilizadas del total de mails utilizados como base de entrenamiento. \\
-Para la extracción se exceptuó tanto el encabezado de cada mail como la porción de texto que corresponde a mensajes reenviados. Tomamos estas decisiones porque de esta manera estamos excluyendo palabras que usualmente pueden estar presentes sin importar el tipo de mail, y por lo que considerarlas no nos brindaría ningún tipo información representativa a la hora de querer clasificarlos.     
+Para la extracción se exceptuó tanto el encabezado de cada mail como la porción de texto que corresponde a mensajes reenviados. Tomamos estas decisiones porque de esta manera estamos excluyendo palabras que usualmente pueden estar presentes sin importar el tipo de mail, y por lo que considerarlas no nos brindaría ningún tipo de información representativa a la hora de querer clasificarlos.   
+  
 
 \end{itemize}
 
