@@ -1,0 +1,4 @@
+Extrayendo palabras mas usadas
+Agregando palabras mas usadas como atributos
+Ejecutando svm con kernel = rbf
+0.875242679274 0.0335004763992
