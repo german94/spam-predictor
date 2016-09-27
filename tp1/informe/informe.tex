@@ -261,6 +261,28 @@ Una vez hecho lo anterior, procedimos a elegir la mejor configuración de datos 
 
 Si bien más abajo se mostrarán los resultados de una manera gráfica y precisa, por lo general pudimos observar que aplicar alguna transformación a los datos siempre va a resultar mejor que no hacerlo. Una vez hecho esto, y seleccionados los clasificadores con sus correspondientes transformaciones, los aplicamos sobre los datos de test (que no fueron utilizados antes). Esto nos brinda una visión mucho más realista de la performance de nuestros clasificadores y nos da cierta seguridad de no haber estado haciendo \textit{overfitting} ya que, como mencionamos, estos datos fueron separados desde el principio y los clasificadores no fueron entrenados con ellos.
 
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\textwidth]{imagenes/sinredtrain.jpg}
+    \caption{Se muestran los clasificadores con un accuracy mayor a 0.8}
+    \label{fig:1}
+\end{figure}
+
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\textwidth]{imagenes/conredtrain.jpg}
+    \caption{Se muestran los clasificadores con un accuracy mayor a 0.8 y las siguientes reducciones:\\
+   Random Forest: 400 mejores atributos, usando chi2.\\
+   Naive Bayes Multinomial: 200 mejores atributos, usando f\_classif.\\
+   Decision tree: 200 mejores atributos, usando chi2.\\
+   KNN: 50 mejores atributos, usando PCA y f_classif. }
+    \label{fig:2}
+\end{figure}
+
 \subsection{Discusión}
 
 \section{Conclusión}
