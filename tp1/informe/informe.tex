@@ -282,8 +282,25 @@ Si bien más abajo se mostrarán los resultados de una manera gráfica y precisa
    KNN: 50 mejores atributos, usando PCA y f_classif. }
     \label{fig:2}
 \end{figure}
+%
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=0.75\textwidth]{imagenes/conredtrain.jpg}
+%    \caption{Se muestran los clasificadores aplicados a la base de test, %con las reducciones de la \label{fig:2}}\\
+%  \label{fig:2}
+%\end{figure}
 
 \subsection{Discusión}
+
+  
+A partir de las técnicas utilizadas y los distintos clasificadores utilizados hemos podido ver que los atributos seleccionados como los mejores generalmente variaban de un modelo a otro. Muchas veces esto ocurrió aun dentro de un mismo clasificador pero variando parámetros por ejemplo  $chi2$ o $f\_classif$. 
+
+Aunque en nuestra selección de atributos predominan los del tipo 500 palabras mas usadas hemos visto que en algunos casos se ha tomado como los de mayor poder predictivo a los otros atributos. Con la reducción de dimensionalidad pudimos observar por un lado que los tiempos de ejecución de los distintos clasificadores disminuyeron respecto de sus versiones sin reducción. Además, observamos que en la mayoría de los casos al incrementar la cantidad de atributos el acurracy aumentaba pero cada vez de manera menos significativa. Incluso en algunos casos al aumentar el número de atributos el accuracy bajaba levemente de una iteración a otra.
+
+ Esto nos llevo a buscar el mejor equilibrio entre las cantidad por un lado con pocos atributos tengo información escasa para poder distinguir entre un Spam y Ham pero, con demasiados atributos no solo aumenta el tiempo de computo sino que tener determinada combinación de atributos pueden empeorar la perfomance o caer en overfitting. 
+ 
+Desde un primer momento observamos que Decision Tree y Random Forest fueron los que predominaron en todo momento la mayor exactitud se encontraba entre estos clasificadores. Aun así luego de observar todos los datos decidimos quedarnos con aquellos clasificadores que habían presentado una exactitud mayor al 80 \%, ya que por lo general estos clasificadores mantuvieron dicha calidad a lo largo de todas la experimentaciones. Una vez probados con la base de test este patrón vario un poco. En primer lugar la exactitud disminuyo mas de lo que habíamos pensado, lo cual puede ser causa de que, aun con las reducciones elegidas, estábamos  overfiteando. 
+En segundo lugar los clasificadores que lideraron la exactitud no fueron los mismos que durante la experimentación....................
 
 \section{Conclusión}
 
