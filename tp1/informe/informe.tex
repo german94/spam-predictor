@@ -127,10 +127,18 @@
 
 \newpage
 \section{Introducción}
+El presente trabajo tiene como objetivo elaborar un clasificador de mails en Spam y Ham. Para lograr esto trabajaremos con distintos modelos de predicción.
 
-\newpage
+Dado que los modelos necesitan de ciertos atributos para poder analizar, catalogar y así predecir , extraeremos un conjunto de atributos significativos de nuestro conjunto de mail.
 
-\section{Desarrollo}
+Trabajaremos sobre un total de 90K de mails, de los cuales utilizaremos 70K como base de entrenamiento para los modelos y el resto como test set. 
+ Evaluaremos distintas combinaciones y variaciones dentro de los modelos comparando la exactitud de cada uno así como el costo temporal que estos implican. 
+ 
+ Finalmente seleccionaremos los mejores y los utilizaremos para clasificar a los mails perteneciente al test set y de esta manera tener una aproximación de como se comportaría el clasificador frente a nuevos datos.  
+ 
+El código será elaborado en lenguaje python. Como bibliotecas destacadas utilizaremos $Pandas$, esta nos permitirá el almacenamiento de los mails y sus atributos dentro de la estructura $DataFrame$.
+
+Las funciones que representen a los distintos modelos serán provistas por la biblioteca $sklearn$.
 
 \subsection{Extracción de atributos}
 Se realizaron un total de 505 extracciones de atributos sobre, aproximadamente, 70K de mails. Dicho conjunto de mails sera nuestro training set mientras que los 20K restantes se corresponderán con nuestro test set. Estos 20.000 mails de test fueron extraídos de manera aleatoria utilizando la función $random.sample$, y no fueron utilizados para el entrenamiento de los clasificadores.
@@ -141,7 +149,9 @@ Los atributos seleccionados fueron los siguientes:
 \item \textit{count\_spaces}: cantidad de espacios que contienen los mails.
 \item \textit{links}: cantidad de enlaces que contienen los mails. Lo consideramos importante ya que suponemos que un tipo de mail spam generalmente es aquel con publicidades y estos contienen distintos enlaces a sus diversos servicios comerciales; o así haciendo referencia a noticias.
 \item \textit{tags}: cantidad de tags HTML encontrados. A veces podemos encontrar en los mails no sólo enlaces, sino imágenes, publicidades, noticias, etc. que se pueden visualizar dentro del propio mail, así como también formateo excesivo de los mismos (muchos colores, etc.) por lo que la presencia y/o cantidad de etiquetas HTML deberían constituir otro atributo distintivo.
-\item \textit{rare}: este atributo representa la cantidad de caracteres que podrían ser considerados poco comunes de encontrar en un mail del tipo Ham.
+\item \textit{rare}: este atributo representa la cantidad de caractere
+\item 
+s que podrían ser considerados poco comunes de encontrar en un mail del tipo Ham.
 \item \textit{500 palabras que más aparecieron en los mails}: se extrajeron las 500 palabras más utilizadas del total de mails utilizados como base de entrenamiento. \\
 Para la extracción se exceptuó tanto el encabezado de cada mail como la porción de texto que corresponde a mensajes reenviados. Tomamos estas decisiones porque de esta manera estamos excluyendo palabras que usualmente pueden estar presentes sin importar el tipo de mail, y por lo que considerarlas no nos brindaría ningún tipo información representativa a la hora de querer clasificarlos.     
 \end{itemize}
