@@ -62,37 +62,46 @@ best_rf_clf = pickle.load(open("resultados/RandomForest/best_rf_clf", "rb"))
 #mas descriptivos. En el caso de PCA no pudimos utilizar el clasificador multinomial por un tema de valores negativos que aparecian
 #y no lo hacian compatible con la transformacion que realiza PCA.
 #Ademas de la seleccion de atributos tambien experimentamos con la funcion SelectPercentile con varios percentiles.
-classifiersPCA = [best_decision_tree_clf, best_rf_clf, GaussianNB()]
-for clf in classifiersPCA:
-	estimatorsOnlyPCA = [('reduce_dim', PCA()), ('clf', clf)]
-	clfpip = Pipeline(estimatorsOnlyPCA)
-	print "Ejecutando " + type(clf).__name__ + " con PCA"
-	pca_res = cross_val_score(clfpip, X, y, cv=10)
-	print np.mean(pca_res), np.std(pca_res)
+best_knn_clf = KNeighborsClassifier(
+ n_neighbors = 3,
+weights = "distance",
+n_jobs = -1
+)
+#classifiersPCA = [best_decision_tree_clf, best_rf_clf, GaussianNB(), best_knn_clf]
+# classifiersPCA = [best_knn_clf]
+# for clf in classifiersPCA:
+# 	estimatorsOnlyPCA = [('reduce_dim', PCA()), ('clf', clf)]
+# 	clfpip = Pipeline(estimatorsOnlyPCA)
+# 	print "Ejecutando " + type(clf).__name__ + " con PCA"
+# 	pca_res = cross_val_score(clfpip, X, y, cv=10)
+# 	print np.mean(pca_res), np.std(pca_res)
 
-print "_____________________________________________________"
-print "K-Best selection"
+# print "_____________________________________________________"
+# print "K-Best selection"
 number_of_attrs = [20, 50, 100, 150, 200, 250, 300, 320, 370, 400, 420, 450]
-classifiersKBest = [best_decision_tree_clf, best_rf_clf, best_mnb_clf, GaussianNB()]
-for n_attrs in number_of_attrs:
-    for clf in classifiersKBest:
-    	estimatorsOnlyKBestAtt = [('k_best', SelectKBest(chi2, k=n_attrs)), ('clf', clf)]
-    	clfpip = Pipeline(estimatorsOnlyKBestAtt)
-        print "Ejecutando " + type(clf).__name__ + " con mejores " + str(n_attrs) + " atributos..."
-        best_attrs_res = cross_val_score(clfpip, X, y, cv=10)
-        print np.mean(best_attrs_res), np.std(best_attrs_res)
+# #classifiersKBest = [best_decision_tree_clf, best_rf_clf, best_mnb_clf, GaussianNB(), best_knn_clf]
+# classifiersKBest = [best_knn_clf]
+# for n_attrs in number_of_attrs:
+#     for clf in classifiersKBest:
+#     	estimatorsOnlyKBestAtt = [('k_best', SelectKBest(chi2, k=n_attrs)), ('clf', clf)]
+#     	clfpip = Pipeline(estimatorsOnlyKBestAtt)
+#         print "Ejecutando " + type(clf).__name__ + " con mejores " + str(n_attrs) + " atributos..."
+#         best_attrs_res = cross_val_score(clfpip, X, y, cv=10)
+#         print np.mean(best_attrs_res), np.std(best_attrs_res)
 
-percentiles = [5, 10, 20, 25]
-classifiers = [best_decision_tree_clf, best_rf_clf, GaussianNB(), best_mnb_clf]
-print "_____________________________________________________"
-print "K-Best selection con f_classif"
-for n_attrs in number_of_attrs:
-    for clf in classifiers:
-    	estimatorsOnlyKBestAtt = [('k_best', SelectKBest(f_classif, k=n_attrs)), ('clf', clf)]
-    	clfpip = Pipeline(estimatorsOnlyKBestAtt)
-        print "Ejecutando " + type(clf).__name__ + " con mejores " + str(n_attrs) + " atributos..."
-        best_attrs_res = cross_val_score(clfpip, X, y, cv=10)
-        print np.mean(best_attrs_res), np.std(best_attrs_res)
+# percentiles = [5, 10, 20, 25]
+classifiers = [best_decision_tree_clf, best_rf_clf, GaussianNB()]
+# classifiers = [best_knn_clf]
+
+# print "_____________________________________________________"
+# print "K-Best selection con f_classif"
+# for n_attrs in number_of_attrs:
+#     for clf in classifiers:
+#     	estimatorsOnlyKBestAtt = [('k_best', SelectKBest(f_classif, k=n_attrs)), ('clf', clf)]
+#     	clfpip = Pipeline(estimatorsOnlyKBestAtt)
+#         print "Ejecutando " + type(clf).__name__ + " con mejores " + str(n_attrs) + " atributos..."
+#         best_attrs_res = cross_val_score(clfpip, X, y, cv=10)
+#         print np.mean(best_attrs_res), np.std(best_attrs_res)
 
 
 print "_____________________________________________________"
@@ -105,23 +114,23 @@ for n_attrs in number_of_attrs:
         best_attrs_res = cross_val_score(clfpip, X, y, cv=10)
         print np.mean(best_attrs_res), np.std(best_attrs_res)
 
-print "_____________________________________________________"
-print "SelectPercentile con f_classif"
-for clf in classifiers:
-	for p in percentiles:
-		estimatorsOnlyKBestAtt = [('select_perc', SelectPercentile(f_classif, percentile=p)), ('clf', clf)]
-		clfpip = Pipeline(estimatorsOnlyKBestAtt)
-		print "Ejecutando " + type(clf).__name__ + " con percentile = " + str(p)
-		best_attrs_res = cross_val_score(clfpip, X, y, cv=10)
-		print np.mean(best_attrs_res), np.std(best_attrs_res)	
+# print "_____________________________________________________"
+# print "SelectPercentile con f_classif"
+# for clf in classifiers:
+# 	for p in percentiles:
+# 		estimatorsOnlyKBestAtt = [('select_perc', SelectPercentile(f_classif, percentile=p)), ('clf', clf)]
+# 		clfpip = Pipeline(estimatorsOnlyKBestAtt)
+# 		print "Ejecutando " + type(clf).__name__ + " con percentile = " + str(p)
+# 		best_attrs_res = cross_val_score(clfpip, X, y, cv=10)
+# 		print np.mean(best_attrs_res), np.std(best_attrs_res)	
 
 
-print "_____________________________________________________"
-print "PCA + SelectPercentile con f_classif"
-for clf in classifiers:
-	for p in percentiles:
-		estimatorsPCAAndKbestAtt = [('reduce_dim', PCA()), ('select_perc', SelectPercentile(f_classif, percentile=p)), ('clf', clf)]
-		clfpip = Pipeline(estimatorsPCAAndKbestAtt)
-		print "Ejecutando " + type(clf).__name__ + " con PCA y percentile = " + str(p)
-		best_attrs_res = cross_val_score(clfpip, X, y, cv=10)
-		print np.mean(best_attrs_res), np.std(best_attrs_res)
+# print "_____________________________________________________"
+# print "PCA + SelectPercentile con f_classif"
+# for clf in classifiers:
+# 	for p in percentiles:
+# 		estimatorsPCAAndKbestAtt = [('reduce_dim', PCA()), ('select_perc', SelectPercentile(f_classif, percentile=p)), ('clf', clf)]
+# 		clfpip = Pipeline(estimatorsPCAAndKbestAtt)
+# 		print "Ejecutando " + type(clf).__name__ + " con PCA y percentile = " + str(p)
+# 		best_attrs_res = cross_val_score(clfpip, X, y, cv=10)
+# 		print np.mean(best_attrs_res), np.std(best_attrs_res)
