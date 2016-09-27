@@ -1,0 +1,7 @@
+Tiempo que se tardo en seleccionar los 50 mejores atributos y generar la matriz: 1.04091000557
+Ejecutando KNN con los mejores 50 atributos...
+0.964048781193 0.0115120330377
+Tiempo que se tardo en entrenar: 0.362785816193
+Tiempo que tardo en predecir (transform + predict) 15.4523620605
+Accuracy de KNN sobre test: 0.81915
+f1_score de KNN sobre test: 0.801970982754
