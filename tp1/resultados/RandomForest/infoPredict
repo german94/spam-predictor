@@ -1,0 +1,7 @@
+Tiempo que se tardo en seleccionar los 400 mejores atributos y generar la matriz: 0.536329984665
+Ejecutando Random Forest con los mejores 400 atributos...
+0.985225000945 0.00587479717628
+Tiempo que se tardo en entrenar: 1.90314483643
+Tiempo que tardo en predecir (transform + predict) 0.196049928665
+Accuracy de random forest sobre test: 0.8606
+f1_score de random forest sobre test: 0.85782763896

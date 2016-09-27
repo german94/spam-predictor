@@ -1,0 +1,7 @@
+Tiempo que se tardo en seleccionar los 200 mejores atributos y generar la matriz: 0.900616884232
+Ejecutando Naive Bayes Multinomial con los mejores 200 atributos...
+0.836288552913 0.079245731169
+Tiempo que se tardo en entrenar: 0.314249992371
+Tiempo que tardo en predecir (transform + predict) 0.0542769432068
+Accuracy de Naive Bayes Multinomial sobre test: 0.604
+f1_score de Naive Bayes Multinomial sobre test: 0.656339494923

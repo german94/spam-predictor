@@ -1,0 +1,7 @@
+Tiempo que se tardo en seleccionar los 200 mejores atributos y generar la matriz: 0.417813062668
+Ejecutando decision tree con los mejores 200 atributos...
+0.964505952599 0.0114354918279
+Tiempo que se tardo en entrenar: 0.333115100861
+Tiempo que tardo en predecir (transform + predict) 0.0212390422821
+Accuracy de decision tree sobre test: 0.73835
+f1_score de decision tree sobre test: 0.722578593013
