@@ -163,13 +163,33 @@ Para la extracción se exceptuó tanto el encabezado de cada mail como la porci�
 
 
 \subsection{Reducción de dimensionalidad:}
+Las técnicas que decidimos emplear para reducir la dimensionalidad fueron básicamente PCA, selección de $K$ mejores atributos y selección de percentil. Estas tres técnicas fueron combinadas siempre que fue posible y probadas con distintos parámetros en el caso de las últimas dos.
 
+Para el caso de selección de $K$ mejores atributos variamos el K con los siguientes valores: 20, 50, 100, 150, 200, 250, 300, 320, 370, 400, 420 y 450 ya que pensamos que constituían una gama relativamente amplia de valores posibles, considerando que estamos trabajando con un total de 505 atributos. En el caso de la selección de percentil variamos el parámetro percentil con los valores 5, 10, 15 y 25. Además, dado que en algunos casos decidimos hacer una combinación de técnicas aplicando primero $PCA$ y luego alguna de las otras dos, también utilizamos dos funciones distintas en el parámetro $score\_func$ correspondiente a $SelectKBest$ y $SelectPercentile$.
 
+Las funciones que utilizamos en el parámetro $score\_func$ fueron $chi2$ y $f\_classif$. Cuando decidimos aplicar primero $PCA$ y luego algún tipo de selección entonces tuvimos que utilizar la función $f\_classif$ debido a que si no se presentaban inconvenientes por valores negativos que aparecían en la matriz luego de la transformación que aplicaba $PCA$. Sin embargo cuando aplicamos las funciones de selección por separado, sin combinarlas con $PCA$, pudimos experimentar tanto con $chi2$ como con $f\_classif$.
+
+Un aspecto importante a rescatar es que tuvimos que hacer utilización de la clase $Pipeline$ de sklearn. Esto se debe a que como vamos a estar realizando ciertas transformaciones a los datos con los que nuestro clasificador vaya a entrenar, es necesario que dichas transformaciones se realicen en el momento indicado que es dentro de la función $cross\_val\_score$ (que usamos para medir la performance de nuestro clasificador en esta instancia). Así, si por ejemplo decidimos aplicar primero $PCA$ y luego $SelectKBest$ con $chi2$ y $K = 200$, entonces estas dos funciones (con parámetros en el caso de la segunda) van a ser steps en el pipeline que utilizará $cross\_val\_score$.
+
+Finalmente para poder tener cierta variedad de transformaciones posibles en los datos a la hora de aplicar los clasificadores y decidir con cual quedarnos, vamos a estar aplicando lo siguiente:
+\begin{itemize}
+\item $PCA$
+\item $SelectKBest$ con los valores de $K$ mencionados anteriormente y el parámetro $score\_func$ tanto con $f\_classif$ como con $chi2$
+\item $SelectPercentile$ con los valores de $percentile$ mencionados anteriormente
+\item $PCA$ y luego $SelectKBest$ (mismos valores de $K$ pero con $f\_classif$ en $score\_func$)
+\item $PCA$ y luego $SelectPercentile$ (mismos valores de $percentile$)
+\end{itemize}
+
+Luego de hacer las transformaciones anteriores a los datos se aplicará cada uno de los clasificadores elegidos a excepción de Naive Bayes Multinomial en los casos donde se utilice $PCA$ ya que este clasificador no puede tratar ciertos valores negativos que aparecen en la matriz luego de la transformación.
 
 \newpage
 
-\subsection{Resultados:}
+\subsection{Resultados y selección del mejor clasificador:}
+Para la selección del mejor clasificador lo que hicimos fue recopilar tres tipos de información distinta. Luego de realizar Grid Search y buscar los mejores parámetros dentro de cierto rango para cada clasificador (a excepción de $SVM$ por su complejidad tempral y $GaussianNB$ porque no recibe parámetros) nos quedamos con los datos de accuracy que arrojados por $cross\_val\_score$ (siempre sobre los datos de training). En esta etapa ya es notorio que los clasificadores más performantes son RandomForest y DecisionTree bien en lo alto y luego KNearestNeighbour y por último y bastante alejado Naive Bayes Multinomial (se mostrarán los gráficos con los valores específicos más abajo).
 
+Por otro lado, como dijimos en la sección donde explicamos las transformaciones que realizamos sobre los datos para reducir la dimensionalidad, también aplicamos $cross\_val\_score$ y nos quedamos con el accuracy que arroja esta función sobre los datos transformados por cada una de las técnicas (o combinación de técnicas) con cada clasificador.
+
+Una vez hecho todo lo anterior, vamos a proceder a elegir la mejor configuración de datos que recibe cada clasificador. Es decir, en algunos casos una reducción de dimensionalidad pudo resultar más beneficiosa y en otros no, con lo cual para cada clasificador decidimos si vamos a transformar los datos antes de utilizarlo (y qué tipo de transformación vamos a estar realizando) o no. Si bien más abajo se mostrarán los resultados de una manera gráfica y precisa, por lo general se dió que aplicar alguna transformación a los datos siempre va a resultar mejor que no hacerlo. Una vez hecho esto y seleccionados los clasificadores con sus correspondientes transformaciones, los aplicamos sobre los datos de test, que es la primera vez que los utilizamos. Esto nos brinda una visión mucho más realista de la performance de nuestros clasificadores y nos da cierta seguridad de no haber estado haciendo sobreajuste ya que, como mencionamos, estos datos fueron separados desde el principio y los clasificadores no fueron entrenados con ellos. Más aún, estos 20.000 mails de test que utilizamos fueron extraídos de manera aleatoria utilizando la función $random.sample$.
 
 
 \newpage
