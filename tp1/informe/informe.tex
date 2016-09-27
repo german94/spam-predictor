@@ -16,6 +16,7 @@
 %\usepackage{makeidx}
 %\usepackage{float}
 \usepackage{calc}
+\usepackage{todonotes}
 \usepackage{amsthm, amssymb}
 \usepackage[nosumlimits]{amsmath} % este package hace que se vean mal los incides en las sumatorias, pero permite poner uno abajo del otro en la ecuacon de los L de laagrange
 
@@ -114,7 +115,7 @@
 \thispagestyle{empty}
 \materia{Aprendizaje Automático}
 \titulo{Trabajo Práctico 1}
-\integrante{Gustavo Cairo}{Xxx}{gj.cairo@gmail.com}
+\integrante{Gustavo Cairo}{89/13}{gj.cairo@gmail.com}
 \integrante{Germán Pinzón}{475/13}{pinzon.german.94@gmail.com}
 \integrante{Ángel More}{931/12}{angel\_21\_fer@hotmail.com}
 
@@ -128,7 +129,7 @@
 \thispagestyle{empty}
 
 \newpage
-\section{Introducción:}
+\section{Introducción}
 
 
 
@@ -136,49 +137,113 @@
 
 \newpage
 
-\section{Desarrollo:}
+\section{Desarrollo}
 
-\subsection{Extracción de atributos:}
+\subsection{Extracción de atributos}
 
-Se realizaron un total de 505 extracciones de atributos sobre, aproximadamente, 70K de mails (nuestro set train). 
+Se realizaron un total de 505 extracciones de atributos sobre, aproximadamente, 70K de mails (nuestro \textit{training set}, sin la porción separada para hacer el test final).
 
 Los atributos seleccionados fueron los siguientes:
 \begin{itemize}
-\item Len : Se toma como atributo la longitud de cada mail.
-\item count\_spaces : representa la cantidad de espacios que contienen los mails.
-\item links : Cantidad de enlaces https que contienen.
-\item tags : cantidad de tags html encontrados.
-\item rare : Este atributo representa la cantidad de caracteres, que a nuestro criterio, serian poco comunes encontrar en un mail del tipo Ham.
-\item word\_count\_att\_names : Para este caso se extrajeron las 500 palabras mas utilizadas del total de mails utilizados como base de entrenamiento. \\
-Para la extracción se exceptuó tanto el encabezado de cada mail como la porción de texto que corresponde a mensajes reenviados. Tomamos estas decisiones porque de esta manera estamos excluyendo palabras que usualmente pueden estar presentes sin importar el tipo de mail, y por lo que considerarlas no nos brindaría ningún tipo información representativa a la hora de querer clasificarlos.     
+\item \textit{len}: longitud de cada mail.
+\item \textit{count\_spaces}: cantidad de espacios que contienen los mails.
+\item \textit{links}: cantidad de enlaces que contienen los mails.
+\item \textit{tags}: cantidad de tags HTML encontrados.
+\item \textit{rare}: este atributo representa la cantidad de caracteres que podrían ser considerados poco comunes de encontrar en un mail del tipo Ham.
+\item \textit{500 palabras que más aparecieron en los mails}: se extrajeron las 500 palabras más utilizadas del total de mails utilizados como base de entrenamiento. \\
 
+Para la extracción se exceptuó tanto el encabezado de cada mail como la porción de texto que corresponde a mensajes reenviados. Tomamos estas decisiones porque de esta manera estamos excluyendo palabras que usualmente pueden estar presentes sin importar el tipo de mail, y por lo que considerarlas no nos brindaría ningún tipo información representativa a la hora de querer clasificarlos.     
+\end{itemize}
+
+\subsection{Modelos}
+
+Decidimos trabajar con los siguientes algoritmos de aprendizaje:
+
+\begin{itemize}
+	\item Decision Tree Classifier
+	\item Multinomial Naive Bayes Classifier
+	\item Gaussian Naive Bayes Classifier
+	\item KNN Classifier
+	\item SVM Classifier
+	\item Random Forest Classifier
+\end{itemize}
+
+Para todos los algoritmos que tuvieran hiperparámetros, elegimos un subset de los mismos (en base a nuestro conocimiento sobre ellos) y ejecutamos grid searches con varias alternativas de valores para cada uno. Ésto nos aseguró conseguir los mejores hiperparámetros (de entre los propuestos por nosotros) para cada clasificador. 
+\newline
+
+A continuación presentamos cuáles fueron los hiperparámetros seleccionados para cada algoritmo, y cuál fue su score correspondiente luego de ejecutar cross-validation de 10 folds con dichos parámetros.
+
+\subsubsection{Decision Tree Classifier}
+Para el Decision Tree Classifier variamos los siguientes hiperparámetros:
+\begin{itemize}
+	\item \textit{criterion:} el criterio para elegir qué atributo usar para hacer split.
+	\item \textit{max\_features:} el número de atributos a tener en cuenta para buscar el mejor split.
+	\item \textit{max\_depth:} la profundidad máxima del árbol (o sin límite).
+	\item \textit{min\_samples\_split:} el mínimo número de instancias necesarias para subdividir un nodo.
+\end{itemize}
+
+\textit{Grid Search} arrojó que, entre todas las combinaciones propuestas, el mejor \textit{Decision Tree Classifier} era el que usaba \textit{entropy} como \textit{criterion}, tenía \textit{max\_features} igual a 10, \textit{max\_depth} sin límite, y \textit{min\_samples\_split} igual a 5. \newline
+\indent El \textit{accuracy} arrojado luego de hacer cross-validation fue aproximadamente 0.96 ($+/-$0.012).
+
+\subsubsection{Multinomial Naive Bayes Classifier}
+Para el Multinomial Naive Bayes Classifier variamos los siguientes hiperparámetros:
+\begin{itemize}
+	\item \textit{alpha:} este parámetro modifica (\textit{suaviza}) la probabilidad de que un parámetro pertenezca a una clase.\footnote{Está relacionado a la frecuencia relativa. Más información: http://scikit-learn.org/stable/modules/naive_bayes.html\#multinomial-naive-bayes}
+	\item \textit{fit\_prior:} este boolean determina si el algoritmo debería aprender la probabilidad de cada clase, o suponer una distribución uniforme.
+\end{itemize}
+
+\textit{Grid Search} arrojó que, entre todas las combinaciones propuestas, el mejor \textit{Multinomial Naive Bayes Classifier} era el que usaba \textit{fit\_prior} en \texttt{true}, y \textit{alpha} en 0.25. \newline
+\indent El \textit{accuracy} arrojado luego de hacer cross-validation fue aproximadamente 0.65 ($+/-$0.06).
+
+\subsubsection{Gaussian Naive Bayes Classifier}
+El Gaussian Naive Bayes Classifier no toma parámetros, por lo que simplemente ejecutamos cross-validation. El \textit{accuracy} arrojado fue de 0.6 ($+/-$0.1).
+
+\subsubsection{KNN Classifier}
+Para el KNN Classifier variamos los siguientes hiperparámetros:
+\begin{itemize}
+	\item \textit{n_neighbors:} este parámetro define la cantidad de vecinos a usar.
+	\item \textit{weights:} este parámetro define si los pesos dados a los vecinos son uniformes, o inversos a su distancia.
+\end{itemize}
+
+Hay un tercer parámetro con el cual intentamos experimentar, \textit{algorithm}, pero como utilizamos estructuras de datos esparsas para guardar el dataset y los atributos, el único algoritmo que funciona con estas estructuras (sin convertirlas en densas) es fuerza bruta. Al intentar utilizar algoritmos distintos, las máquinas en las cuales intentamos correr la Grid Search se quedaban sin memoria, así que optamos por utilizar simplemente el algoritmo de fuerza bruta.
+
+\textit{Grid Search} arrojó que, entre todas las combinaciones propuestas, el mejor \textit{KNN Classifier} era el que usaba \textit{n\_neighbors} en 3, y \textit{weights} igual a \textit{distance}. \newline
+\indent El \textit{accuracy} arrojado luego de hacer cross-validation fue aproximadamente 0.89 ($+/-$0.03).
+
+\subsubsection{Gaussian Naive Bayes Classifier}
+El Gaussian Naive Bayes Classifier no toma parámetros, por lo que simplemente ejecutamos cross-validation. El \textit{accuracy} arrojado fue de 0.6 ($+/-$0.1).
+
+\subsubsection{SVM Classifier}
+\todo{ESCRIBIR COSAS DE SVM}
+
+\subsubsection{Random Forest Classifier}
+Para el Random Forest Classifier variamos los siguientes hiperparámetros:
+\begin{itemize}
+	\item \textit{n_estimators:} este parámetro define la cantidad de árboles en el bosque.
+	\item \textit{criterion:} el criterio para elegir qué atributo usar para hacer split.
+	\item \textit{max\_features:} el número de atributos a tener en cuenta para buscar el mejor split.
+	\item \textit{max\_depth:} la profundidad máxima del árbol (o sin límite).
+	\item \textit{min\_samples\_split:} el mínimo número de instancias necesarias para subdividir un nodo.
+\end{itemize}
+
+\textit{Grid Search} arrojó que, entre todas las combinaciones propuestas, el mejor \textit{Random Forest Classifier} era el que usaba 20 árboles, \textit{criterion} igual a \textit{gini}, \textit{max\_features} igual a 1, \textit{max\_depth} igual a 2, y \textit{min\_samples\_split} también igual a 2. \newline
+\indent El \textit{accuracy} arrojado luego de hacer cross-validation fue aproximadamente 0.98 ($+/-$0.006).
+
+\subsection{Reducción de dimensionalidad}
+
+\begin{itemize}
+	\item PCA
+	\item Select K Best Features
+	\item Select Percentile
+	\item PCA + Select K Best Features
+	\item PCA + Select Percentile
 \end{itemize}
 
 
+\subsection{Resultados}
 
-\subsection{Modelos:}
+\subsection{Discusión}
 
+\section{Conclusión}
 
-
-
-
-\subsection{Reducción de dimensionalidad:}
-
-
-
-\newpage
-
-\subsection{Resultados:}
-
-
-
-\newpage
-
-\subsection{Discusión:}
-
-
-
-\newpage
-
-\section{Conclusión:}
 \end{document}
