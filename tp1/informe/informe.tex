@@ -214,7 +214,16 @@ Hay un tercer parámetro con el cual intentamos experimentar, \textit{algorithm}
 El Gaussian Naive Bayes Classifier no toma parámetros, por lo que simplemente ejecutamos cross-validation. El \textit{accuracy} arrojado fue de 0.6 ($+/-$0.1).
 
 \subsubsection{SVM Classifier}
-\todo{ESCRIBIR COSAS DE SVM}
+
+En SVM buscamos variar los siguientes hiperparámetros:
+
+\begin{itemize}
+\item \textit{kernel:} Este parámetro sirve para especificar el tipo de algoritmos que se utilizará 
+\item \textit{degree:} Parámetro utilizado como grado para las funciones de kernel del tipo polinómica.
+\end{itemize}
+
+Si bien intentamos variar el tipo de kernel y los grados. Sólo obtuvimos la perfomance para kernel en modo $rbf$. La causa fue el tiempo que demoro este clasificador. Sin reducciones el tiempo total fue de aproximadamente 15 hs. Aunque intentamos seguir experimentando aplicándole reducciones y/o transformaciones, el tiempo seguía siendo excesivamente alto comparándolo con los demás. Por lo que nos concentramos en tratar de probar las mayores y mejores variantes en el resto de los clasificadores. 
+
 
 \subsubsection{Random Forest Classifier}
 Para el Random Forest Classifier variamos los siguientes hiperparámetros:
@@ -265,16 +274,16 @@ Si bien más abajo se mostrarán los resultados de una manera gráfica y precisa
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.75\textwidth]{imagenes/sinredtrain.jpg}
-    \caption{Se muestran los clasificadores con un accuracy mayor a 0.8}
+    \includegraphics[width=0.70\textwidth]{imagenes/sinredtrain.jpg}
+    \caption{Se muestran los clasificadores con un accuracy mayor a 0.8, sin realizar ningun tipo de transformación o reducción}
     \label{fig:1}
-\end{figure}
+%\end{figure}
 
 
 
-\begin{figure}[h]
+%\begin{figure}[h]
     \centering
-    \includegraphics[width=0.75\textwidth]{imagenes/conredtrain.jpg}
+    \includegraphics[width=0.70\textwidth]{imagenes/conredtrain.jpg}
     \caption{Se muestran los clasificadores con un accuracy mayor a 0.8 y las siguientes reducciones:\\
    Random Forest: 400 mejores atributos, usando chi2.\\
    Naive Bayes Multinomial: 200 mejores atributos, usando f\_classif.\\
@@ -288,9 +297,9 @@ Si bien más abajo se mostrarán los resultados de una manera gráfica y precisa
     \includegraphics[width=0.75\textwidth]{imagenes/contratest.jpg}
     \caption{Se muestran los clasificadores aplicados a la base de test, con las reducciones de la figura anterior. } 
   \label{fig:2}
-\end{figure}
+%\end{figure}
 
-\begin{figure}[h]
+%\begin{figure}[h]
    \centering
     \includegraphics[width=0.75\textwidth]{imagenes/tiempos.jpg}
     \caption{Tiempos registrados durante la calsificación de los mails de la base de tets} 
@@ -299,19 +308,21 @@ Si bien más abajo se mostrarán los resultados de una manera gráfica y precisa
 
 
 \pagebreak
+
 \subsection{Discusión}
+A partir de las técnicas utilizadas y los distintos clasificadores hemos podido ver que los atributos seleccionados como los mejores generalmente variaban de un modelo a otro. Muchas veces esto ocurrió aún dentro de un mismo clasificador pero variando parámetros por ejemplo  $chi2$ o $f\_classif$. 
 
-
-  
-A partir de las técnicas utilizadas y los distintos clasificadores utilizados hemos podido ver que los atributos seleccionados como los mejores generalmente variaban de un modelo a otro. Muchas veces esto ocurrió aun dentro de un mismo clasificador pero variando parámetros por ejemplo  $chi2$ o $f\_classif$. 
-
-Aunque en nuestra selección de atributos predominan los del tipo 500 palabras mas usadas hemos visto que en algunos casos se ha tomado como los de mayor poder predictivo a los otros atributos. Con la reducción de dimensionalidad pudimos observar por un lado que los tiempos de ejecución de los distintos clasificadores disminuyeron respecto de sus versiones sin reducción. Además, observamos que en la mayoría de los casos al incrementar la cantidad de atributos el acurracy aumentaba pero cada vez de manera menos significativa. Incluso en algunos casos al aumentar el número de atributos el accuracy bajaba levemente de una iteración a otra.
+Aunque en nuestra selección de atributos predominan los del tipo "500 palabras mas usadas" hemos visto que en algunos casos se ha tomado como los de mayor poder predictivo a los otros atributos. Con la reducción de dimensionalidad pudimos observar por un lado que los tiempos de ejecución de los distintos clasificadores disminuyeron respecto de sus versiones sin reducción. Además, observamos que en la mayoría de los casos al incrementar la cantidad de atributos el acurracy aumentaba pero cada vez de manera menos significativa. Incluso en algunos casos al aumentar el número de atributos el accuracy bajaba levemente de una iteración a otra.
 
  Esto nos llevo a buscar el mejor equilibrio entre las cantidad por un lado con pocos atributos tengo información escasa para poder distinguir entre un Spam y Ham pero, con demasiados atributos no solo aumenta el tiempo de computo sino que tener determinada combinación de atributos pueden empeorar la perfomance o caer en overfitting. 
  
-Desde un primer momento observamos que Decision Tree y Random Forest fueron los que predominaron en todo momento la mayor exactitud se encontraba entre estos clasificadores. Aun así luego de observar todos los datos decidimos quedarnos con aquellos clasificadores que habían presentado una exactitud mayor al 80 \%, ya que por lo general estos clasificadores mantuvieron dicha calidad a lo largo de todas la experimentaciones. Una vez probados con la base de test este patrón vario un poco. En primer lugar la exactitud disminuyo mas de lo que habíamos pensado, lo cual puede ser causa de que, aun con las reducciones elegidas, estábamos  overfiteando. 
-En segundo lugar los clasificadores que lideraron la exactitud no fueron los mismos que durante la experimentación....................
+Desde un primer momento observamos que Decision Tree y Random Forest fueron los que predominaron en todo momento la mayor exactitud se encontraba entre estos clasificadores. Aun así luego de observar todos los datos decidimos quedarnos con aquellos clasificadores que habían presentado una exactitud mayor al 80 \%, ya que por lo general estos clasificadores mantuvieron dicha calidad a lo largo de todas la experimentaciones. Una vez probados con la base de test este patrón vario un poco. En primer lugar la exactitud disminuyo mas de lo que habíamos pensado, lo cual puede ser causa de que, aun con las reducciones elegidas, estábamos  overfiteando. Lo cual también pudo ser causa de que 
+los clasificadores que lideraron la exactitud, no fueron los mismos que durante la experimentación. Si bien Random Forest predomino, el segundo mejor fue KNN.
 
-\section{Conclusión}
+ Mientras que en lo que respecta a los clasificadores del tipo Naive Bayes en casi todos los casos experimentados la perfomance fue bastante baja. La causa principal de esto podría ser que los atributos están demasiados relacionados como para ser tratados de manera independiente. Siendo desfavorable para el algoritmo.
+
+
+
+  
 
 \end{document}
