@@ -9,14 +9,18 @@
 # Segundo cuatrimestre 2016
 
 import time
+import pickle
 import ClfGenerator as cflgen
+import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
 
 # Intenta cargar el clasificador ya entrenado. Si no existe, lo entrena y guarda para futuros usos.
 try:
-  dt_clf = pickle.load(open("resultados/DecisionTreeClf/clasificadorEntrenado_200att", "r"))
+  dt_clf = pickle.load(open("resultados/DecisionTreeClass/clasificadorEntrenado_200att", "r"))
 except IOError:
   # Si no existe el dataframe, o la lista de palabras mas usadas, o el mejor decision tree
   # classifier surgido de grid search, es porque no se corrio ClfGenerator.py
@@ -24,7 +28,7 @@ except IOError:
   try:
     df = pickle.load(open("train/df", "r"))
     word_count_att_names = pickle.load(open("train/word_count_att_names", "r"))
-    dt_clf = pickle.load(open("resultados/DecisionTreeClf/best_decision_tree_clf", "r"))
+    dt_clf = pickle.load(open("resultados/DecisionTreeClass/best_decision_tree_clf", "r"))
   except IOError as e:
     print "Correr primero ClfGenerator.py"
     raise e
@@ -41,7 +45,7 @@ except IOError:
   print "Tiempo consumido: " + str(endTimeAttSelection - startTimeAttSelection) 
   
   #Guardo los mejores atributos elegidos para luego poder hacer el transform sobre los mails a predecir
-  file = open("resultados/DecisionTreeClf/best_attrs", "w")
+  file = open("resultados/DecisionTreeClass/best_attrs", "w")
   pickle.dump(best_attrs, file)
   file.close()
 
@@ -52,12 +56,12 @@ except IOError:
   print "Tiempo consumido: " + str(endTimeTrain - startTimeTrain)
 
   #Guardo el clasificador entrenado
-  file = open("resultados/DecisionTreeClf/clasificadorEntrenado_200att", "w")
+  file = open("resultados/DecisionTreeClass/clasificadorEntrenado_200att", "w")
   pickle.dump(dt_clf, file)
   file.close()
 
 # En esta seccion se procesaran los mails a predecir.
-# Si no se había cargado ya la lista de atributos, la cargo
+# Si no se habia cargado ya la lista de atributos, la cargo
 try:
   word_count_att_names
 except NameError:
@@ -86,20 +90,20 @@ except IOError:
   # 2) Cantidad de espacios en el mail.
   df_test['count_spaces'] = map(cflgen.count_spaces, df_test.text)
   # 3) Cantidad de links
-  df_test['links'] = map(cflgen.getLinks, df_test.text)
+  df_test['links'] = map(cflgen.count_links, df_test.text)
   # 4) Cantidad de tags
-  df_test['tags'] = map(cflgen.get_tags_regex, df_test.text)
+  df_test['tags'] = map(cflgen.count_html_tags, df_test.text)
   # 5) cantidad de caracteres raros
-  df_test['rare'] = map(cflgen.raros, df_test.text)
+  df_test['rare'] = map(cflgen.count_rare_chars, df_test.text)
 
   # Conseguimos los cuerpos de cada mail
   all_mail_bodies = ham_test + spam_test
-  all_mail_bodies[:] = map((lambda x : cflgen.getLastMessage(cflgen.getMailBody(x))), all_mail_bodies)
+  all_mail_bodies[:] = map((lambda x : cflgen.get_last_message(cflgen.get_mail_body(x))), all_mail_bodies)
 
   # Contamos la cantidad de apariciones de las palabras mas utilizadas del dataset,
   # y las agregamos al dataframe
   for word in word_count_att_names:
-    df['w_' + cflgen.deleteSpecialChars(word)] = map(lambda x : x.count(word), all_mail_bodies)
+    df_test['w_' + cflgen.deleteSpecialChars(word)] = map(lambda x : x.count(word), all_mail_bodies)
 
   # Guardamos el dataframe de test
   file = open("test/df_test_TEST", "w")
@@ -114,7 +118,7 @@ y_test = df_test['class']
 try:
   best_attrs
 except NameError:
-  best_attrs = pickle.load(open("resultados/DecisionTreeClf/best_attrs", "w"))
+  best_attrs = pickle.load(open("resultados/DecisionTreeClass/best", "r"))
 
 print "Aplicando seleccion de atributos y prediciendo..."
 startTestTransformTime = time.time()
