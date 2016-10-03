@@ -12,7 +12,7 @@ import time
 import pickle
 import ClfGenerator as cflgen
 import pandas as pd
-from sklearn.tree import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.metrics import accuracy_score

@@ -3,7 +3,7 @@
 #Para correr este archivo se necesitan tener los siguientes directorios y archivos:
 #Directorio train con archivos df, ham_train_dev, spam_train_dev, word_count_att_names
 #Directorio test con archivos spam_test_dev y ham_test_dev
-#Directorio resultados con subdirectorio DecisionTreeClass, dentro de DecisionTreeClass tiene que estar el archivo best_decision_tree_clf
+#Directorio resultados con subdirectorio DecisionTreeClf, dentro de DecisionTreeClf tiene que estar el archivo best_decision_tree_clf
 
 # Aprendizaje Automatico - DC, FCEN, UBA
 # Segundo cuatrimestre 2016
@@ -20,7 +20,7 @@ from sklearn.metrics import f1_score
 
 # Intenta cargar el clasificador ya entrenado. Si no existe, lo entrena y guarda para futuros usos.
 try:
-  dt_clf = pickle.load(open("resultados/DecisionTreeClass/clasificadorEntrenado_200att", "r"))
+  dt_clf = pickle.load(open("resultados/DecisionTreeClf/clasificadorEntrenado_200att", "r"))
 except IOError:
   # Si no existe el dataframe, o la lista de palabras mas usadas, o el mejor decision tree
   # classifier surgido de grid search, es porque no se corrio ClfGenerator.py
@@ -28,7 +28,7 @@ except IOError:
   try:
     df = pickle.load(open("train/df", "r"))
     word_count_att_names = pickle.load(open("train/word_count_att_names", "r"))
-    dt_clf = pickle.load(open("resultados/DecisionTreeClass/best_decision_tree_clf", "r"))
+    dt_clf = pickle.load(open("resultados/DecisionTreeClf/best_decision_tree_clf", "r"))
   except IOError as e:
     print "Correr primero ClfGenerator.py"
     raise e
@@ -46,7 +46,7 @@ except IOError:
   print "Tiempo consumido: " + str(endTimeAttSelection - startTimeAttSelection) 
   
   #Guardo los mejores atributos elegidos para luego poder hacer el transform sobre los mails a predecir
-  file = open("resultados/DecisionTreeClass/best_attrs", "w")
+  file = open("resultados/DecisionTreeClf/best_attrs", "w")
   pickle.dump(best_attrs, file)
   file.close()
 
@@ -57,7 +57,7 @@ except IOError:
   print "Tiempo consumido: " + str(endTimeTrain - startTimeTrain)
 
   #Guardo el clasificador entrenado
-  file = open("resultados/DecisionTreeClass/clasificadorEntrenado_200att", "w")
+  file = open("resultados/DecisionTreeClf/clasificadorEntrenado_200att", "w")
   pickle.dump(dt_clf, file)
   file.close()
 
@@ -119,7 +119,7 @@ y_test = df_test['class']
 try:
   best_attrs
 except NameError:
-  best_attrs = pickle.load(open("resultados/DecisionTreeClass/best", "r"))
+  best_attrs = pickle.load(open("resultados/DecisionTreeClf/best_attrs", "r"))
 
 print "Aplicando seleccion de atributos y prediciendo..."
 startTestTransformTime = time.time()
