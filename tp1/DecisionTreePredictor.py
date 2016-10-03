@@ -33,7 +33,8 @@ except IOError:
     print "Correr primero ClfGenerator.py"
     raise e
 
-  X = df[['len', 'count_spaces', 'links', 'tags', 'rare'] + word_count_att_names].values
+  word_count_att_df_names = map(lambda x : 'w_' + cflgen.deleteSpecialChars(x), word_count_att_names)
+  X = df[['len', 'count_spaces', 'links', 'tags', 'rare'] + word_count_att_df_names].values
   y = df['class']
 
   # Aplicamos seleccion de atributos a la matriz X
@@ -110,8 +111,8 @@ except IOError:
   pickle.dump(df_test, file)
   file.close()
 
-word_count_att_names[:] = map(lambda x : 'w_' + cflgen.deleteSpecialChars(x), word_count_att_names)
-X_test = df_test[['len', 'count_spaces', 'links', 'tags', 'rare'] + word_count_att_names].values
+word_count_att_df_names = map(lambda x : 'w_' + cflgen.deleteSpecialChars(x), word_count_att_names)
+X_test = df_test[['len', 'count_spaces', 'links', 'tags', 'rare'] + word_count_att_df_names].values
 y_test = df_test['class']
 
 # Si no habiamos cargado ya los mejores atributos, los levanto.

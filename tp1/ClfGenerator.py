@@ -138,7 +138,8 @@ def main():
         file.close()
 
     # Preparo data para clasificar
-    X = df[['len', 'count_spaces', 'links', 'tags','rare'] + word_count_att_names].values
+    word_count_att_df_names = map(lambda x : 'w_' + deleteSpecialChars(x), word_count_att_names)
+    X = df[['len', 'count_spaces', 'links', 'tags', 'rare'] + word_count_att_df_names].values
     y = df['class']
 
     #################### Decision Tree Classifier ####################

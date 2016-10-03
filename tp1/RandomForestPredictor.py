@@ -5,127 +5,128 @@
 #Directorio test con archivos spam_test_dev y ham_test_dev
 #Directorio resultados con subdirectorio RandomForest, dentro de RandomForest tiene que estar el archivo best_rf_clf
 
-#Al correr esto 
-
 # Aprendizaje Automatico - DC, FCEN, UBA
 # Segundo cuatrimestre 2016
 
-import json
-import numpy as np
-import pandas as pd
-import re
-import email
-import string
-import pickle
 import time
-from functools import reduce
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import f1_score
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.cross_validation import cross_val_score
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.grid_search import GridSearchCV
-from sklearn.naive_bayes import GaussianNB
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
+import pickle
+import ClfGenerator as cflgen
+import pandas as pd
+from sklearn.tree import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
-from sklearn.decomposition import PCA
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
 
-#DATOS DE TRAIN: en esta seccion se deben entrenar los modelos si no se cargan ya entrenados
-df = pickle.load(open("train/df", "rb"))
-word_count_att_names = pickle.load(open("train/word_count_att_names", "rb"))
-X = df[['len', 'count_spaces', 'links', 'tags','rare'] + word_count_att_names].values
-y = df['class']
-rf_clf = pickle.load(open("resultados/RandomForest/best_rf_clf", "rb"))
+# Intenta cargar el clasificador ya entrenado. Si no existe, lo entrena y guarda para futuros usos.
+try:
+  rf_clf = pickle.load(open("resultados/RandomForest/clasificadorEntrenado_400att", "r"))
+except IOError:
+  # Si no existe el dataframe, o la lista de palabras mas usadas, o el mejor decision tree
+  # classifier surgido de grid search, es porque no se corrio ClfGenerator.py
+  # (o hubo un error al correrlo)
+  try:
+    df = pickle.load(open("train/df", "r"))
+    word_count_att_names = pickle.load(open("train/word_count_att_names", "r"))
+    rf_clf = pickle.load(open("resultados/RandomForest/best_rf_clf", "r"))
+  except IOError as e:
+    print "Correr primero ClfGenerator.py"
+    raise e
 
-startTimeAttSelection = time.time()
-best = SelectKBest(chi2, k=400)
-X_new = best.fit_transform(X, y)
-endTimeAttSelection = time.time()
-print "Tiempo que se tardo en seleccionar los 400 mejores atributos y generar la matriz: " + str(endTimeAttSelection - startTimeAttSelection) 
-#Guardo el best para luego poder hacer el transform sobre los mails a predecir
-file = open("resultados/RandomForest/best", "wb")
-pickle.dump(best, file)
-file.close()
-print "Ejecutando Random Forest con los mejores 400 atributos..."
-best_attrs_res = cross_val_score(rf_clf, X_new, y, cv=10)
-print np.mean(best_attrs_res), np.std(best_attrs_res)
+  word_count_att_df_names = map(lambda x : 'w_' + cflgen.deleteSpecialChars(x), word_count_att_names)
+  X = df[['len', 'count_spaces', 'links', 'tags', 'rare'] + word_count_att_df_names].values
+  y = df['class']
 
-startTimeTrain = time.time()
-rf_clf.fit(X_new, y)
-endTimeTrain = time.time()
-print "Tiempo que se tardo en entrenar: " + str(endTimeTrain - startTimeTrain)
-#Guardo el clasificador entrenado
-file = open("resultados/RandomForest/clasificadorEntrenado_400att", "wb")
-pickle.dump(rf_clf, file)
-file.close()
+  # Aplicamos seleccion de atributos a la matriz X
+  print "Seleccionando mejores 400 atributos..."
+  startTimeAttSelection = time.time()
+  best_attrs = SelectKBest(chi2, k=400)
+  X_new = best_attrs.fit_transform(X, y)
+  endTimeAttSelection = time.time()
+  print "Tiempo consumido: " + str(endTimeAttSelection - startTimeAttSelection) 
+  
+  #Guardo los mejores atributos elegidos para luego poder hacer el transform sobre los mails a predecir
+  file = open("resultados/RandomForest/best_attrs", "w")
+  pickle.dump(best_attrs, file)
+  file.close()
 
+  print "Entrenando modelo..."
+  startTimeTrain = time.time()
+  rf_clf.fit(X_new, y)
+  endTimeTrain = time.time()
+  print "Tiempo consumido: " + str(endTimeTrain - startTimeTrain)
 
+  #Guardo el clasificador entrenado
+  file = open("resultados/RandomForest/clasificadorEntrenado_400att", "w")
+  pickle.dump(rf_clf, file)
+  file.close()
 
+# En esta seccion se procesaran los mails a predecir.
+# Si no se habia cargado ya la lista de atributos, la cargo
+try:
+  word_count_att_names
+except NameError:
+  # Si no la puedo cargar, es porque no existe y primero hay que correr ClfGenerator.py
+  try:
+    word_count_att_names = pickle.load(open("train/word_count_att_names", "r"))
+  except IOError as e:
+    print "Correr primero ClfGenerator.py"
+    raise e
 
-# Todo el siguiente bloque de codigo esta comentado porque ya se utilizo una vez y ahora solo basta con cargar los datos desde los archivos
-# #DATOS DE TESET: en esta seccion se deben usar los modelos entrenados para hacer el predict
-# ham_test = pickle.load(open("test/ham_test_dev", "rb"))
-# spam_test = pickle.load(open("test/spam_test_dev", "rb"))
+# Intento cargar el dataframe del dataset de test. Si no existe, lo creo.
+try:
+  df_test = pickle.load(open("test/df_test_TEST", "r"))
+except IOError:
+  ham_test = pickle.load(open("test/ham_test_dev", "r"))
+  spam_test = pickle.load(open("test/spam_test_dev", "r"))
 
-# # Armo un dataset de Pandas 
-# # http://pandas.pydata.org/
-# df_test = pd.DataFrame(ham_test+spam_test, columns=['text'])
-# df_test['class'] = ['ham' for _ in range(len(ham_test))]+['spam' for _ in range(len(spam_test))]
+  # Armo un dataset de Pandas 
+  # http://pandas.pydata.org/
+  df_test = pd.DataFrame(ham_test+spam_test, columns=['text'])
+  df_test['class'] = ['ham' for _ in range(len(ham_test))]+['spam' for _ in range(len(spam_test))]
 
-# # Extraigo atributos simples: 
-# # 1) Longitud del mail.
-# df_test['len'] = map(len, df_test.text)
-# # 2) Cantidad de espacios en el mail.
-# df_test['count_spaces'] = map(count_spaces, df_test.text)
-# # 3) Cantidad de links
-# df_test['links'] = map(getLinks, df_test.text)
-# # 4) Cantidad de tags
-# df_test['tags'] = map(get_tags_regex, df_test.text)
-# # 5) cantidad de caracteres raros
-# df_test['rare'] = map(raros,df_test.text)
+  # Extraigo atributos simples: 
+  # 1) Longitud del mail.
+  df_test['len'] = map(len, df_test.text)
+  # 2) Cantidad de espacios en el mail.
+  df_test['count_spaces'] = map(cflgen.count_spaces, df_test.text)
+  # 3) Cantidad de links
+  df_test['links'] = map(cflgen.count_links, df_test.text)
+  # 4) Cantidad de tags
+  df_test['tags'] = map(cflgen.count_html_tags, df_test.text)
+  # 5) cantidad de caracteres raros
+  df_test['rare'] = map(cflgen.count_rare_chars, df_test.text)
 
-# # Conseguimos los cuerpos de cada mail
-# all_mail_bodies = ham_test + spam_test
-# all_mail_bodies[:] = map((lambda x : getLastMessage(getMailBody(x))), all_mail_bodies)
+  # Conseguimos los cuerpos de cada mail
+  all_mail_bodies = ham_test + spam_test
+  all_mail_bodies[:] = map((lambda x : cflgen.get_last_message(cflgen.get_mail_body(x))), all_mail_bodies)
 
-# # Extraemos las palabras mas utilizadas en los cuerpos de los mails y guardamos
-# # como atributo la cantidad de apariciones de cada una.
-# print "Extrayendo palabras mas usadas"
-# count_vectorizer = CountVectorizer(token_pattern='[^\d\W_]\w+', max_features=500)
-# word_count_matrix_test = count_vectorizer.fit_transform(all_mail_bodies)
-# word_count_matrix_test = word_count_matrix_test.transpose().toarray()
-# word_count_att_names_test = count_vectorizer.get_feature_names()
-# word_count_att_names_test[:] = map(lambda x : 'w' + deleteSpecialChars(x), word_count_att_names_test)
+  # Contamos la cantidad de apariciones de las palabras mas utilizadas del dataset,
+  # y las agregamos al dataframe
+  for word in word_count_att_names:
+    df_test['w_' + cflgen.deleteSpecialChars(word)] = map(lambda x : x.count(word), all_mail_bodies)
 
-#codigo para guardar word_count_att_names
-# file = open("test/word_count_att_names_TEST", "wb")
-# pickle.dump(word_count_att_names_test, file)
-# file.close()
+  # Guardamos el dataframe de test
+  file = open("test/df_test_TEST", "w")
+  pickle.dump(df_test, file)
+  file.close()
 
-# print "Agregando palabras mas usadas como atributos"
-# for att_name_idx in xrange(len(word_count_att_names_test)):
-# 	df_test[word_count_att_names_test[att_name_idx]] = word_count_matrix_test[att_name_idx]
-
-# #codigo para guardar df_test
-# file = open("test/df_test_TEST", "wb")
-# pickle.dump(df_test, file)
-# file.close()
-
-df_test = pickle.load(open("test/df_test_TEST", "rb"))
-word_count_att_names_test = pickle.load(open("test/word_count_att_names_TEST", "rb"))
-
-
-X_test = df_test[['len', 'count_spaces', 'links', 'tags','rare'] + word_count_att_names_test].values
+word_count_att_df_names = map(lambda x : 'w_' + cflgen.deleteSpecialChars(x), word_count_att_names)
+X_test = df_test[['len', 'count_spaces', 'links', 'tags', 'rare'] + word_count_att_df_names].values
 y_test = df_test['class']
 
+# Si no habiamos cargado ya los mejores atributos, los levanto.
+try:
+  best_attrs
+except NameError:
+  best_attrs = pickle.load(open("resultados/RandomForest/best_attrs", "r"))
+
+print "Aplicando seleccion de atributos y prediciendo..."
 startTestTransformTime = time.time()
-X_new_test = best.transform(X_test)
+X_new_test = best_attrs.transform(X_test)
 predArr = rf_clf.predict(X_new_test)
 endTestTransformTime = time.time()
-print "Tiempo que tardo en predecir (transform + predict) " + str(endTestTransformTime - startTestTransformTime)
+
+print "Tiempo consumido en la prediccion (transform + predict) " + str(endTestTransformTime - startTestTransformTime)
 print "Accuracy de random forest sobre test: " + str(accuracy_score(predArr, y_test))
 print "f1_score de random forest sobre test: " + str(f1_score(predArr, y_test, pos_label="spam"))
